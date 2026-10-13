@@ -42,7 +42,7 @@ export default function contribute(server: PluginServerContext) {
     if (busy.size >= 3)
       throw new Error("已有 3 个命名任务正在运行，请稍后重试。");
     const s = await read();
-    await workspaceFor(paseo, input.workspaceId);
+    const initialWorkspace = await workspaceFor(paseo, input.workspaceId);
     if (busy.has(input.workspaceId) || busy.size >= 3)
       throw new Error("已有命名任务正在处理，请稍后重试。");
     busy.add(input.workspaceId);
@@ -60,8 +60,26 @@ export default function contribute(server: PluginServerContext) {
           };
         else {
           job.status = "generating";
+          const generated = await generate(s, c);
+          const currentWorkspace = await workspaceFor(paseo, input.workspaceId);
+          if (
+            (currentWorkspace.title ?? null) !==
+            (initialWorkspace.title ?? null)
+          )
+            throw new Error(
+              "生成期间名称已在其他窗口中修改。请重新加载后再生成。",
+            );
+          try {
+            await paseo.workspaces
+              .ref(input.workspaceId)
+              .setTitle(generated.title);
+          } catch {
+            throw new Error(
+              "名称已生成，但自动应用失败。请重新加载确认当前名称后重试。",
+            );
+          }
           job.result = {
-            ...(await generate(s, c)),
+            ...generated,
             stats: c.stats,
             model: s.model,
           };

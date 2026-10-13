@@ -130,14 +130,20 @@ export function RenameForm({
               setNotice("输入已准备好，尚未调用模型。");
             } else {
               setTitle(r.title!);
+              setDetail((current) =>
+                current
+                  ? {
+                      ...current,
+                      workspace: { ...current.workspace, title: r.title! },
+                    }
+                  : current,
+              );
               setPreviousTitle(r.title!);
               setPrompt("");
               setUsage(
                 `模型：${r.model}${r.inputTokens != null ? ` · 实际输入 ${r.inputTokens.toLocaleString()} tokens` : ""}${r.outputTokens != null ? ` · 输出 ${r.outputTokens} tokens` : ""}`,
               );
-              setNotice(
-                "候选名称已生成。可以编辑或再次生成，点击“保存名称”后才会应用。",
-              );
+              setNotice("新名称已自动应用。可以再次生成。");
             }
             break;
           }
@@ -259,6 +265,7 @@ export function RenameForm({
             onChange={setTitle}
             disabled={!!busy}
           />
+          <Note theme={theme}>生成成功后会自动应用名称。</Note>
           <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
             <Button
               theme={theme}
@@ -283,20 +290,23 @@ export function RenameForm({
             >
               {busy === "preview" ? "正在读取…" : "预览输入"}
             </Button>
-            <Button
-              theme={theme}
-              disabled={
-                !!busy ||
-                !title.trim() ||
-                title.trim() ===
-                  (detail.workspace.title ?? detail.workspace.name)
-              }
-              onPress={() => {
-                void act("save");
-              }}
-            >
-              {busy === "save" ? "正在保存…" : "保存名称"}
-            </Button>
+            {title.trim() !==
+              (detail.workspace.title ?? detail.workspace.name) && (
+              <Button
+                theme={theme}
+                disabled={
+                  !!busy ||
+                  !title.trim() ||
+                  title.trim() ===
+                    (detail.workspace.title ?? detail.workspace.name)
+                }
+                onPress={() => {
+                  void act("save");
+                }}
+              >
+                {busy === "save" ? "正在应用…" : "应用手动修改"}
+              </Button>
+            )}
             <Button
               theme={theme}
               disabled={!!busy}

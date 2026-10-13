@@ -96,3 +96,136 @@ test("background preview completes without changing the name; stale save is reje
     dispose();
   }
 });
+
+for (const scenario of [
+  "success",
+  "model failure",
+  "apply failure",
+  "concurrent rename",
+] as const) {
+  test(`automatic apply: ${scenario}`, async () => {
+    const handlers = new Map<
+      string,
+      (input: any, context: any) => Promise<any>
+    >();
+    const writes: string[] = [];
+    let title = "原名称",
+      requests = 0;
+    const originalFetch = globalThis.fetch;
+    const previousKey = process.env.AI_RENAME_HANDLER_TEST_KEY;
+    process.env.AI_RENAME_HANDLER_TEST_KEY = "test-only-key";
+    const dispose = contribute({
+      registerSettings: () => ({
+        read: async () => ({
+          status: "ready",
+          values: SettingsSchema.parse({
+            connection: "custom",
+            baseUrl: "https://example.test/v1",
+            apiKeyEnv: "AI_RENAME_HANDLER_TEST_KEY",
+          }),
+        }),
+      }),
+      handle: (contract: { name: string }, handler: any) =>
+        handlers.set(contract.name, handler),
+    } as unknown as PluginServerContext);
+    const context = {
+      paseo: {
+        workspaces: {
+          ref: () => ({
+            refresh: async () => ({
+              id: "w",
+              name: "branch",
+              title,
+              projectDisplayName: "Project",
+            }),
+            setTitle: async (next: string) => {
+              if (scenario === "apply failure") throw new Error("write failed");
+              writes.push(next);
+              title = next;
+            },
+          }),
+        },
+        agents: {
+          list: async () => ({
+            entries: [
+              { agent: { id: "a", workspaceId: "w", title: "session" } },
+            ],
+            pageInfo: {},
+          }),
+          ref: () => ({
+            timeline: {
+              refetch: async () => ({
+                error: null,
+                hasOlder: false,
+                entries: [
+                  {
+                    seqStart: 1,
+                    item: { type: "user_message", text: "修复登录跳转" },
+                  },
+                ],
+              }),
+            },
+          }),
+        },
+      },
+    };
+    globalThis.fetch = async () => {
+      requests++;
+      if (scenario === "concurrent rename") title = "其他窗口的新名称";
+      if (scenario === "model failure")
+        return new Response("unavailable", { status: 503 });
+      return new Response(
+        JSON.stringify({
+          choices: [
+            {
+              message: { content: `修复登录跳转 ${requests}` },
+              finish_reason: "stop",
+            },
+          ],
+        }),
+      );
+    };
+    const run = async () => {
+      const { jobId } = await handlers.get("rename.start")!(
+        { workspaceId: "w", scope: "latest", kind: "generate" },
+        context,
+      );
+      for (let i = 0; i < 100; i++) {
+        const job = await handlers.get("rename.poll")!({ jobId }, context);
+        if (job.status === "done" || job.status === "error") return job;
+        await new Promise((r) => setTimeout(r, 5));
+      }
+      throw new Error("job did not finish");
+    };
+    try {
+      const job = await run();
+      if (scenario === "success") {
+        assert.equal(job.status, "done");
+        assert.equal(title, job.result.title);
+        assert.deepEqual(writes, ["修复登录跳转 1"]);
+        const again = await run();
+        assert.equal(again.status, "done");
+        assert.equal(title, "修复登录跳转 2");
+        assert.deepEqual(writes, ["修复登录跳转 1", "修复登录跳转 2"]);
+      } else {
+        assert.equal(job.status, "error");
+        assert.equal(job.result, undefined);
+        assert.deepEqual(writes, []);
+        assert.equal(
+          title,
+          scenario === "concurrent rename" ? "其他窗口的新名称" : "原名称",
+        );
+        if (scenario === "apply failure")
+          assert.match(job.error, /自动应用失败/);
+        if (scenario === "concurrent rename")
+          assert.match(job.error, /其他窗口/);
+      }
+    } finally {
+      dispose();
+      globalThis.fetch = originalFetch;
+      if (previousKey === undefined)
+        delete process.env.AI_RENAME_HANDLER_TEST_KEY;
+      else process.env.AI_RENAME_HANDLER_TEST_KEY = previousKey;
+    }
+  });
+}
