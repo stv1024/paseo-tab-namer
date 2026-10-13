@@ -72,6 +72,7 @@ export function RenameForm({
   const [usage, setUsage] = useState("");
   const [prompt, setPrompt] = useState("");
   const [previousTitle, setPreviousTitle] = useState("");
+  const [showMore, setShowMore] = useState(false);
   useEffect(() => {
     if (!scopeTouched && preferences.status === "ready")
       setSelection((s) => ({ ...s, scope: preferences.values.scope }));
@@ -143,7 +144,11 @@ export function RenameForm({
               setUsage(
                 `模型：${r.model}${r.inputTokens != null ? ` · 实际输入 ${r.inputTokens.toLocaleString()} tokens` : ""}${r.outputTokens != null ? ` · 输出 ${r.outputTokens} tokens` : ""}`,
               );
-              setNotice("新名称已自动应用。可以再次生成。");
+              setNotice(
+                r.stats.truncated
+                  ? "已自动应用（上下文已截取）。"
+                  : "已自动应用。",
+              );
             }
             break;
           }
@@ -200,10 +205,7 @@ export function RenameForm({
       </View>
       {detail ? (
         <>
-          <Note theme={theme}>
-            {detail.workspace.project} · 当前名称：
-            {detail.workspace.title ?? detail.workspace.name}
-          </Note>
+          <Note theme={theme}>{detail.workspace.project}</Note>
           <Choices
             theme={theme}
             disabled={!!busy}
@@ -225,7 +227,7 @@ export function RenameForm({
               { value: "selected", label: "指定会话" },
             ]}
           />
-          {selection.scope === "latest" && (
+          {showMore && selection.scope === "latest" && (
             <Note theme={theme}>
               最近会话：{detail.agents[0]?.title ?? "无会话"}
             </Note>
@@ -260,7 +262,7 @@ export function RenameForm({
           )}
           <Field
             theme={theme}
-            label="新名称"
+            label="名称"
             value={title}
             onChange={setTitle}
             disabled={!!busy}
@@ -281,15 +283,6 @@ export function RenameForm({
                   ? "再次生成"
                   : "生成名称"}
             </Button>
-            <Button
-              theme={theme}
-              disabled={!!busy || !detail.agents.length}
-              onPress={() => {
-                void act("preview");
-              }}
-            >
-              {busy === "preview" ? "正在读取…" : "预览输入"}
-            </Button>
             {title.trim() !==
               (detail.workspace.title ?? detail.workspace.name) && (
               <Button
@@ -307,17 +300,34 @@ export function RenameForm({
                 {busy === "save" ? "正在应用…" : "应用手动修改"}
               </Button>
             )}
-            <Button
-              theme={theme}
-              disabled={!!busy}
-              onPress={() => {
-                void act("reload");
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={showMore ? "收起更多选项" : "更多选项"}
+              accessibilityState={{ expanded: showMore }}
+              onPress={() => setShowMore((value) => !value)}
+              style={{
+                paddingHorizontal: 10,
+                paddingVertical: 10,
+                justifyContent: "center",
               }}
             >
-              重新加载
-            </Button>
+              <Text style={{ color: c.foregroundMuted }}>
+                {showMore ? "收起" : "更多"}
+              </Text>
+            </Pressable>
           </View>
-          {stats && (
+          {showMore && (
+            <Button
+              theme={theme}
+              disabled={!!busy || !detail.agents.length}
+              onPress={() => {
+                void act("preview");
+              }}
+            >
+              {busy === "preview" ? "正在读取…" : "预览输入"}
+            </Button>
+          )}
+          {showMore && stats && (
             <View
               style={{
                 backgroundColor: c.surface1,
@@ -345,7 +355,7 @@ export function RenameForm({
               ))}
             </View>
           )}
-          {!!prompt && (
+          {showMore && !!prompt && (
             <View style={{ gap: 8 }}>
               <Note theme={theme}>
                 以下为本次准备的输入。生成时会重新读取会话中的最新内容。
@@ -382,23 +392,23 @@ export function RenameForm({
           <Note theme={theme}>
             {error ? "Workspace 加载失败。" : "正在加载 workspace…"}
           </Note>
-          {!!error && (
-            <Button
-              theme={theme}
-              disabled={!!busy}
-              onPress={() => {
-                void act("reload");
-              }}
-            >
-              重新加载
-            </Button>
-          )}
         </>
       )}
       {!!error && (
-        <Note theme={theme} error>
-          {error}
-        </Note>
+        <View style={{ gap: 8 }}>
+          <Note theme={theme} error>
+            {error}
+          </Note>
+          <Button
+            theme={theme}
+            disabled={!!busy}
+            onPress={() => {
+              void act("reload");
+            }}
+          >
+            {detail ? "刷新状态" : "重试"}
+          </Button>
+        </View>
       )}
       {!!notice && <Note theme={theme}>{notice}</Note>}
     </View>
