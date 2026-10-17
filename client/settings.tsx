@@ -210,7 +210,7 @@ function SettingsForm({
         onChange={(v) => setNumbers((n) => ({ ...n, maxInputTokens: v }))}
       />
       <Note theme={theme}>
-        默认 128,000，可设 2,048–256,000。预算包含提示词和会话，按 UTF-8 字节加
+        默认 128,000，可设 2,048–256,000。预算包含提示词和 Tab，按 UTF-8 字节加
         256 的余量计数；通常高于模型的实际 tokens。超限保留开头 25% 和近期
         75%。预览会另显示分词估算。
       </Note>
@@ -219,8 +219,8 @@ function SettingsForm({
         value={draft.scope}
         onChange={(v) => update("scope", v)}
         options={[
-          { value: "latest", label: "默认：最近会话" },
-          { value: "all", label: "默认：全部会话" },
+          { value: "latest", label: "默认：最近 Tab" },
+          { value: "all", label: "默认：全部 Tab" },
         ]}
       />
       <Choices
@@ -233,7 +233,7 @@ function SettingsForm({
         ]}
       />
       <Note theme={theme}>
-        使用可读取的会话文字。工具日志、推理过程和图片原始内容不进入命名请求。全部会话共享预算。
+        使用可读取的 Tab 文字。工具日志、推理过程和图片原始内容不进入命名请求。全部 Tab 共享预算。
       </Note>
       <Field
         theme={theme}

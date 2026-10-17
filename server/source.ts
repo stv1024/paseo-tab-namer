@@ -55,7 +55,7 @@ export async function readConversation(
     projection: "canonical",
   });
   if (page.error)
-    throw new Error(`无法读取会话 ${agent.title ?? agent.id}：${page.error}`);
+    throw new Error(`无法读取 Tab ${agent.title ?? agent.id}：${page.error}`);
   const found = new Map<number, Message>();
   let bytes = 0;
   const add = (entries: typeof page.entries) => {
@@ -92,7 +92,7 @@ export async function readConversation(
       projection: "canonical",
     });
     if (older.error || older.staleCursor || older.epoch !== page.epoch)
-      throw new Error("会话正在压缩或更新，请稍后重试。");
+      throw new Error("Tab 正在压缩或更新，请稍后重试。");
     add(older.entries);
     if (!older.startCursor || older.startCursor.seq >= current.startCursor.seq)
       break;
@@ -110,7 +110,7 @@ export async function readConversation(
         projection: "canonical",
       });
       if (head.error || head.staleCursor || head.epoch !== page.epoch)
-        throw new Error("会话正在压缩或更新，请稍后重试。");
+        throw new Error("Tab 正在压缩或更新，请稍后重试。");
       add(head.entries);
       if (
         head.entries.some((e) => e.item.type === "user_message") ||
@@ -140,16 +140,16 @@ export async function prepare(
     agents = agents.filter((a) => a.id === selection.agentId);
   if (selection.scope === "latest") agents = agents.slice(0, 1);
   if (!agents.length)
-    throw new Error("此范围内没有可读取的会话。请选择其他会话。");
+    throw new Error("此范围内没有可读取的 Tab。请选择其他 Tab。");
   if (agents.length > 100)
-    throw new Error("此 workspace 超过 100 个会话，请选择一个会话生成名称。");
+    throw new Error("此 workspace 超过 100 个 Tab，请选择一个 Tab 生成名称。");
   const conversations: Conversation[] = [];
   for (const agent of agents)
     conversations.push(await readConversation(paseo, agent, settings));
   if (!conversations.some((c) => c.messages.some((m) => m.role === "user")))
     throw new Error("此范围内没有用户消息，无法可靠地生成名称。");
   const warnings = conversations.some((c) => c.incomplete)
-    ? ["长会话已保留开头与近期内容，部分历史未载入。"]
+    ? ["过长的 Tab 已保留开头与近期内容，部分历史未载入。"]
     : [];
   return buildContext(
     settings,

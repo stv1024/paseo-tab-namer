@@ -62,7 +62,7 @@ export default function contribute(client: PluginClientContext) {
   });
   client.addCommandCenterItem({
     id: "rename-agent",
-    title: "AI 重命名：根据当前会话",
+    title: "AI 重命名：根据当前 Tab",
     icon: "Sparkles",
     context: "agent",
     keywords: ["rename", "name", "重命名"],

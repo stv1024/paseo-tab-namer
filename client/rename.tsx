@@ -156,7 +156,7 @@ export function RenameForm({
             throw new Error("等待任务超时，请稍后重新打开。");
           setNotice(
             job.status === "reading"
-              ? "正在读取所选会话…"
+              ? "正在读取所选 Tab…"
               : "上下文已准备好，正在等待模型…",
           );
           await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -222,14 +222,14 @@ export function RenameForm({
               setPreviousTitle("");
             }}
             options={[
-              { value: "latest", label: "最近会话" },
-              { value: "all", label: `全部会话 (${detail.agents.length})` },
-              { value: "selected", label: "指定会话" },
+              { value: "latest", label: "最近 Tab" },
+              { value: "all", label: `全部 Tab (${detail.agents.length})` },
+              { value: "selected", label: "指定 Tab" },
             ]}
           />
           {showMore && selection.scope === "latest" && (
             <Note theme={theme}>
-              最近会话：{detail.agents[0]?.title ?? "无会话"}
+              最近 Tab：{detail.agents[0]?.title ?? "无 Tab"}
             </Note>
           )}
           {selection.scope === "selected" && (
@@ -237,7 +237,7 @@ export function RenameForm({
               {detail.agents.map((a) => (
                 <Pressable
                   accessibilityRole="button"
-                  accessibilityLabel={`选择会话 ${a.title}`}
+                  accessibilityLabel={`选择 Tab ${a.title}`}
                   key={a.id}
                   disabled={!!busy}
                   onPress={() => {
@@ -342,10 +342,10 @@ export function RenameForm({
                 {stats.maxInputTokens.toLocaleString()}
               </Note>
               <Note theme={theme}>
-                {stats.sessions} 个会话 · 已读取 {stats.messages} 条文字消息 ·{" "}
+                {stats.sessions} 个 Tab · 已读取 {stats.messages} 条文字消息 ·{" "}
                 {stats.truncated
                   ? "已截取：保留开头和近期内容"
-                  : "所选会话文字完整纳入"}
+                  : "所选 Tab 文字完整纳入"}
               </Note>
               <Note theme={theme}>{usage}</Note>
               {stats.warnings.map((w, i) => (
@@ -358,7 +358,7 @@ export function RenameForm({
           {showMore && !!prompt && (
             <View style={{ gap: 8 }}>
               <Note theme={theme}>
-                以下为本次准备的输入。生成时会重新读取会话中的最新内容。
+                以下为本次准备的输入。生成时会重新读取 Tab 中的最新内容。
               </Note>
               <ScrollView
                 style={{
