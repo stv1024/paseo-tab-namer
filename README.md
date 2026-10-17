@@ -68,6 +68,7 @@ paseo plugin reload tab-namer
 - 在本机插件运行环境中读取当前开发 Tab：20 条消息、实际输入 1,983 tokens，生成“开发 Paseo AI 重命名插件”。
 - 新建的插件开发 workspace 已完成名称写入与读回验证。
 - Paseo CLI 安装和 reload 返回 `running`，日志为 `Plugin ready`。
+- 改名为 Tab Namer 后从本地 checkout 重新安装，状态 `running`，日志为 `Plugin ready`。
 - 桌面自动化服务连接失败，尚未完成实际界面的点击和视觉验证。
 
 保存前会重读当前名称，发现它已改变就拒绝覆盖。宿主没有原子 compare-and-set 接口，因此无法防止极短的“检查后、写入前”并发修改。
