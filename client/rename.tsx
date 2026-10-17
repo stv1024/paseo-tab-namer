@@ -26,7 +26,6 @@ type Detail = {
   agents: { id: string; title: string; updatedAt: string }[];
 };
 type Stats = {
-  estimatedTokens: number;
   budgetTokens: number;
   maxInputTokens: number;
   messages: number;
@@ -337,7 +336,6 @@ export function RenameForm({
               }}
             >
               <Note theme={theme}>
-                输入估算 {stats.estimatedTokens.toLocaleString()} tokens ·
                 保守预算 {stats.budgetTokens.toLocaleString()} /{" "}
                 {stats.maxInputTokens.toLocaleString()}
               </Note>

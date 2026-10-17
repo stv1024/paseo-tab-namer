@@ -7,6 +7,7 @@ import {
   type Conversation,
   type Message,
 } from "./context";
+import { isGenerator } from "./model";
 
 export async function workspaces(paseo: PaseoApi) {
   const entries = [];
@@ -37,7 +38,7 @@ export async function agentsFor(paseo: PaseoApi, workspaceId: string) {
     agents.push(
       ...page.entries
         .map((e) => e.agent)
-        .filter((a) => a.workspaceId === workspaceId),
+        .filter((a) => a.workspaceId === workspaceId && !isGenerator(a)),
     );
     cursor = page.pageInfo.nextCursor ?? undefined;
   } while (cursor);

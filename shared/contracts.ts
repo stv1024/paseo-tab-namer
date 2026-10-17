@@ -14,7 +14,6 @@ export const SelectionSchema = z.object({
 });
 export type Selection = z.infer<typeof SelectionSchema>;
 export const StatsSchema = z.object({
-  estimatedTokens: z.number(),
   budgetTokens: z.number(),
   maxInputTokens: z.number(),
   messages: z.number(),
@@ -46,14 +45,25 @@ export const saveRpc = defineRpc({
   }),
   output: z.object({ title: z.string() }),
 });
-export const connectionRpc = defineRpc({
-  name: "rename.connection",
-  input: z.object({}),
-  output: z.object({
-    ready: z.boolean(),
-    message: z.string(),
-    model: z.string(),
-  }),
+const OptionSchema = z.object({
+  id: z.string(),
+  label: z.string(),
+  isDefault: z.boolean(),
+});
+export const ProviderSchema = z.object({
+  id: z.string(),
+  label: z.string(),
+  ready: z.boolean(),
+  error: z.string().nullable(),
+  models: z.array(
+    OptionSchema.extend({ thinkingOptions: z.array(OptionSchema) }),
+  ),
+});
+export type Provider = z.infer<typeof ProviderSchema>;
+export const modelsRpc = defineRpc({
+  name: "rename.models",
+  input: z.object({ refresh: z.boolean().default(false) }),
+  output: z.array(ProviderSchema),
 });
 export const startRpc = defineRpc({
   name: "rename.start",

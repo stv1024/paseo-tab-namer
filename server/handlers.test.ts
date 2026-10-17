@@ -111,18 +111,11 @@ for (const scenario of [
     const writes: string[] = [];
     let title = "原名称",
       requests = 0;
-    const originalFetch = globalThis.fetch;
-    const previousKey = process.env.AI_RENAME_HANDLER_TEST_KEY;
-    process.env.AI_RENAME_HANDLER_TEST_KEY = "test-only-key";
     const dispose = contribute({
       registerSettings: () => ({
         read: async () => ({
           status: "ready",
-          values: SettingsSchema.parse({
-            connection: "custom",
-            baseUrl: "https://example.test/v1",
-            apiKeyEnv: "AI_RENAME_HANDLER_TEST_KEY",
-          }),
+          values: SettingsSchema.parse({ provider: "claude", model: "haiku" }),
         }),
       }),
       handle: (contract: { name: string }, handler: any) =>
@@ -130,6 +123,7 @@ for (const scenario of [
     } as unknown as PluginServerContext);
     const context = {
       paseo: {
+        providers: { waitForReady: async () => ({ entries: [] }) },
         workspaces: {
           ref: () => ({
             refresh: async () => ({
@@ -143,11 +137,36 @@ for (const scenario of [
               writes.push(next);
               title = next;
             },
+            agents: {
+              create: async () => ({
+                run: async (text: string) => {
+                  requests++;
+                  if (scenario === "concurrent rename")
+                    title = "其他窗口的新名称";
+                  return scenario === "model failure"
+                    ? { status: "error", error: "unavailable", final: null }
+                    : {
+                        status: "idle",
+                        lastMessage: `修复登录跳转 ${requests}`,
+                        final: null,
+                      };
+                },
+                archive: async () => {},
+              }),
+            },
           }),
         },
         agents: {
           list: async () => ({
             entries: [
+              {
+                agent: {
+                  id: "n",
+                  workspaceId: "w",
+                  title: "Tab Namer",
+                  labels: { "tab-namer": "generator" },
+                },
+              },
               { agent: { id: "a", workspaceId: "w", title: "session" } },
             ],
             pageInfo: {},
@@ -168,22 +187,6 @@ for (const scenario of [
           }),
         },
       },
-    };
-    globalThis.fetch = async () => {
-      requests++;
-      if (scenario === "concurrent rename") title = "其他窗口的新名称";
-      if (scenario === "model failure")
-        return new Response("unavailable", { status: 503 });
-      return new Response(
-        JSON.stringify({
-          choices: [
-            {
-              message: { content: `修复登录跳转 ${requests}` },
-              finish_reason: "stop",
-            },
-          ],
-        }),
-      );
     };
     const run = async () => {
       const { jobId } = await handlers.get("rename.start")!(
@@ -222,10 +225,6 @@ for (const scenario of [
       }
     } finally {
       dispose();
-      globalThis.fetch = originalFetch;
-      if (previousKey === undefined)
-        delete process.env.AI_RENAME_HANDLER_TEST_KEY;
-      else process.env.AI_RENAME_HANDLER_TEST_KEY = previousKey;
     }
   });
 }

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { prepare, readConversation } from "./source";
+import { agentsFor, prepare, readConversation } from "./source";
 import { SettingsSchema } from "../shared/settings";
 import type { Agent, PaseoApi } from "./types";
 const settings = SettingsSchema.parse({});
@@ -72,5 +72,28 @@ test("selected agent must belong to the target workspace", async () => {
       settings,
     ),
     /没有可读取/,
+  );
+});
+test("Tab Namer's own helper agents are never treated as Tabs", async () => {
+  const paseo = {
+    agents: {
+      list: async () => ({
+        entries: [
+          {
+            agent: {
+              id: "n",
+              workspaceId: "w",
+              labels: { "tab-namer": "generator" },
+            },
+          },
+          { agent: { id: "a", workspaceId: "w", labels: {} } },
+        ],
+        pageInfo: {},
+      }),
+    },
+  } as unknown as PaseoApi;
+  assert.deepEqual(
+    (await agentsFor(paseo, "w")).map((a) => a.id),
+    ["a"],
   );
 });

@@ -3,15 +3,15 @@ import { randomUUID } from "node:crypto";
 import type { z } from "zod";
 import { renameSettings } from "./shared/settings";
 import {
-  connectionRpc,
   detailRpc,
   listRpc,
+  modelsRpc,
   pollRpc,
   saveRpc,
   startRpc,
 } from "./shared/contracts";
 import { agentsFor, prepare, workspaceFor, workspaces } from "./server/source";
-import { generate, resolveConnection } from "./server/model";
+import { generate, listProviders } from "./server/model";
 
 export default function contribute(server: PluginServerContext) {
   const settings = server.registerSettings(renameSettings);
@@ -56,11 +56,11 @@ export default function contribute(server: PluginServerContext) {
           job.result = {
             prompt: c.system + "\n\n" + c.content,
             stats: c.stats,
-            model: s.model,
+            model: `${s.provider}/${s.model}`,
           };
         else {
           job.status = "generating";
-          const generated = await generate(s, c);
+          const generated = await generate(paseo, input.workspaceId, s, c);
           const currentWorkspace = await workspaceFor(paseo, input.workspaceId);
           if (
             (currentWorkspace.title ?? null) !==
@@ -81,7 +81,7 @@ export default function contribute(server: PluginServerContext) {
           job.result = {
             ...generated,
             stats: c.stats,
-            model: s.model,
+            model: `${s.provider}/${s.model}`,
           };
         }
         job.status = "done";
@@ -135,23 +135,9 @@ export default function contribute(server: PluginServerContext) {
       return { title };
     },
   );
-  server.handle(connectionRpc, async () => {
-    const s = await read();
-    try {
-      await resolveConnection(s);
-      return {
-        ready: true,
-        model: s.model,
-        message: "连接配置和密钥可用。生成时会实际调用模型。",
-      };
-    } catch (e) {
-      return {
-        ready: false,
-        model: s.model,
-        message: e instanceof Error ? e.message : "连接配置无效。",
-      };
-    }
-  });
+  server.handle(modelsRpc, ({ refresh }, { paseo }) =>
+    listProviders(paseo, refresh),
+  );
   return () => {
     clearInterval(expire);
     jobs.clear();

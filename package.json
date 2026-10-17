@@ -19,6 +19,7 @@
     "test:smoke": "tsx scripts/smoke.ts"
   },
   "devDependencies": {
+    "@getpaseo/client": "^0.11.2",
     "@getpaseo/plugin": "0.11.2",
     "@tanstack/react-query": "^5.90.11",
     "@types/node": "^26.6.5",
@@ -28,9 +29,5 @@
     "tsx": "^4.23.15",
     "typescript": "^5.9.3",
     "zod": "^4.4.3"
-  },
-  "dependencies": {
-    "gpt-tokenizer": "^4.0.0",
-    "yaml": "^2.9.1"
   }
 }

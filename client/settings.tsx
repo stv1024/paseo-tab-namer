@@ -1,17 +1,18 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ScrollView, Text, View } from "react-native";
 import {
   useRpc,
   useSettings,
   type PluginSurfaceProps,
 } from "@getpaseo/plugin/client";
+import { SettingsCard, SettingsSelect } from "@getpaseo/plugin/client/ui";
 import {
   DEFAULT_PROMPT,
   renameSettings,
   SettingsSchema,
   type Settings,
 } from "../shared/settings";
-import { connectionRpc } from "../shared/contracts";
+import { modelsRpc, type Provider } from "../shared/contracts";
 import { Button, Choices, Field, Note } from "./ui";
 
 export function SettingsScreen(props: PluginSurfaceProps) {
@@ -80,12 +81,20 @@ function SettingsForm({
   const [numbers, setNumbers] = useState({
     maxInputTokens: String(values.maxInputTokens),
     maxTitleChars: String(values.maxTitleChars),
-    temperature: String(values.temperature),
     timeoutSeconds: String(values.timeoutSeconds),
   });
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
-  const check = useRpc(connectionRpc);
+  const listModels = useRpc(modelsRpc);
+  const [providers, setProviders] = useState<Provider[] | null>(null);
+  const [listError, setListError] = useState("");
+  const loadModels = (refresh: boolean) => {
+    setListError("");
+    void listModels({ refresh })
+      .then(setProviders)
+      .catch((e) => setListError(String(e.message ?? e)));
+  };
+  useEffect(() => loadModels(false), []);
   const update = <K extends keyof Settings>(key: K, value: Settings[K]) => {
     setDraft((d) => ({ ...d, [key]: value }));
     setNotice("");
@@ -109,11 +118,8 @@ function SettingsForm({
       );
       return;
     }
-    if (
-      parsed.data.connection === "custom" &&
-      !/^https?:\/\//.test(parsed.data.baseUrl)
-    ) {
-      setError("请填写有效的 HTTP(S) 接口基础地址。");
+    if (!parsed.data.provider || !parsed.data.model) {
+      setError("请选择命名使用的服务和模型。");
       return;
     }
     if (await save(parsed.data)) setNotice("设置已保存。下一次生成时生效。");
@@ -139,66 +145,28 @@ function SettingsForm({
       <Text style={{ color: c.foreground, fontSize: 18, fontWeight: "600" }}>
         模型连接
       </Text>
-      <Choices
-        theme={theme}
-        value={draft.connection}
-        onChange={(v) => update("connection", v)}
-        options={[
-          { value: "omp", label: "复用本机 OMP" },
-          { value: "custom", label: "自定义接口" },
-        ]}
-      />
-      {draft.connection === "omp" ? (
-        <>
-          <Field
-            theme={theme}
-            label="OMP 服务名称"
-            value={draft.ompProvider}
-            onChange={(v) => update("ompProvider", v)}
-          />
-          <Note theme={theme}>
-            从本机 ~/.omp/agent/models.yml
-            读取地址和密钥。密钥不会发送到插件界面或写入仓库。
-          </Note>
-        </>
-      ) : (
-        <>
-          <Field
-            theme={theme}
-            label="API 基础地址（包含 /v1）"
-            value={draft.baseUrl}
-            onChange={(v) => update("baseUrl", v)}
-          />
-          <Field
-            theme={theme}
-            label="API 密钥环境变量名"
-            value={draft.apiKeyEnv}
-            onChange={(v) => update("apiKeyEnv", v)}
-          />
-          <Note theme={theme}>
-            支持 OpenAI Chat Completions 兼容接口。环境变量需在 Paseo
-            服务进程中可用。
-          </Note>
-        </>
-      )}
-      <Field
-        theme={theme}
-        label="模型 ID"
-        value={draft.model}
-        onChange={(v) => update("model", v)}
-      />
-      <Button
-        theme={theme}
-        onPress={() => {
-          void check({})
-            .then((r) => {
-              setNotice(r.message);
-              setError("");
-            })
-            .catch((e) => setError(String(e.message ?? e)));
+      <ModelPicker
+        providers={providers}
+        provider={draft.provider}
+        model={draft.model}
+        thinkingOptionId={draft.thinkingOptionId}
+        onChange={(next) => {
+          setDraft((d) => ({ ...d, ...next }));
+          setNotice("");
         }}
-      >
-        检查已保存的连接配置
+      />
+      <Note theme={theme}>
+        {providers
+          ? "列表来自此主机 Paseo 已启用的服务。命名时会在当前 workspace 临时启动一个 Tab Namer 会话，完成后自动归档。"
+          : "正在读取 Paseo 服务列表…"}
+      </Note>
+      {!!listError && (
+        <Note theme={theme} error>
+          {listError}
+        </Note>
+      )}
+      <Button theme={theme} onPress={() => loadModels(true)}>
+        刷新服务列表
       </Button>
       <Text style={{ color: c.foreground, fontSize: 18, fontWeight: "600" }}>
         上下文与输出
@@ -233,19 +201,15 @@ function SettingsForm({
         ]}
       />
       <Note theme={theme}>
-        使用可读取的 Tab 文字。工具日志、推理过程和图片原始内容不进入命名请求。全部 Tab 共享预算。
+        使用可读取的 Tab
+        文字。工具日志、推理过程和图片原始内容不进入命名请求。全部 Tab
+        共享预算。
       </Note>
       <Field
         theme={theme}
         label="名称最大字符数"
         value={numbers.maxTitleChars}
         onChange={(v) => setNumbers((n) => ({ ...n, maxTitleChars: v }))}
-      />
-      <Field
-        theme={theme}
-        label="温度（0–1.5）"
-        value={numbers.temperature}
-        onChange={(v) => setNumbers((n) => ({ ...n, temperature: v }))}
       />
       <Field
         theme={theme}
@@ -282,5 +246,86 @@ function SettingsForm({
       )}
       {!!notice && <Note theme={theme}>{notice}</Note>}
     </ScrollView>
+  );
+}
+
+const UNSET = "";
+function ModelPicker({
+  providers,
+  provider,
+  model,
+  thinkingOptionId,
+  onChange,
+}: {
+  providers: Provider[] | null;
+  provider: string;
+  model: string;
+  thinkingOptionId: string;
+  onChange(next: {
+    provider: string;
+    model: string;
+    thinkingOptionId: string;
+  }): void;
+}) {
+  const list = providers ?? [];
+  const current = list.find((p) => p.id === provider);
+  const models = current?.models ?? [];
+  const currentModel = models.find((m) => m.id === model);
+  const thinking = currentModel?.thinkingOptions ?? [];
+  // Keep a saved value selectable even when the host no longer lists it.
+  const missing = (value: string, known: boolean) =>
+    value && !known ? [{ value, label: `${value}（当前不可用）` }] : [];
+  const pickModel = (p: Provider | undefined, id: string) =>
+    onChange({
+      provider: p?.id ?? provider,
+      model: id,
+      thinkingOptionId: UNSET,
+    });
+  return (
+    <SettingsCard>
+      <SettingsSelect
+        label="服务"
+        value={provider}
+        disabled={!providers}
+        options={[
+          ...(provider ? [] : [{ value: UNSET, label: "请选择" }]),
+          ...missing(provider, !!current),
+          ...list.map((p) => ({
+            value: p.id,
+            label: p.ready ? p.label : `${p.label}（${p.error ?? "未就绪"}）`,
+          })),
+        ]}
+        onValueChange={(id) => {
+          const p = list.find((x) => x.id === id);
+          const m = p?.models.find((x) => x.isDefault) ?? p?.models[0];
+          pickModel(p, m?.id ?? UNSET);
+        }}
+      />
+      <SettingsSelect
+        label="模型"
+        value={model}
+        disabled={!current}
+        options={[
+          ...(model ? [] : [{ value: UNSET, label: "请选择" }]),
+          ...missing(model, !!currentModel),
+          ...models.map((m) => ({ value: m.id, label: m.label })),
+        ]}
+        onValueChange={(id) => pickModel(current, id)}
+      />
+      {thinking.length > 0 && (
+        <SettingsSelect
+          label="思考强度"
+          hint="命名任务简单，较低强度通常更快。"
+          value={thinkingOptionId}
+          options={[
+            { value: UNSET, label: "模型默认" },
+            ...thinking.map((t) => ({ value: t.id, label: t.label })),
+          ]}
+          onValueChange={(id) =>
+            onChange({ provider, model, thinkingOptionId: id })
+          }
+        />
+      )}
+    </SettingsCard>
   );
 }
