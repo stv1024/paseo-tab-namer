@@ -1,0 +1,170 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="base.css" />
+    <style>
+      :root {
+        --w: 1280px;
+        --h: 640px;
+      }
+      body {
+        background:
+          radial-gradient(900px 520px at 88% 40%, rgba(32, 116, 74, 0.32), transparent 65%),
+          radial-gradient(600px 400px at 0% 100%, rgba(124, 203, 160, 0.08), transparent 70%),
+          var(--sidebar);
+      }
+      .grid {
+        position: absolute;
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+        background-size: 40px 40px;
+        mask-image: radial-gradient(ellipse at 70% 50%, #000 20%, transparent 75%);
+      }
+      .left {
+        position: absolute;
+        left: 84px;
+        top: 0;
+        bottom: 0;
+        width: 560px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 26px;
+      }
+      .logo {
+        width: 76px;
+        height: 76px;
+        border-radius: 20px;
+        background: linear-gradient(145deg, #2a9a63, #165638);
+        display: grid;
+        place-items: center;
+        box-shadow: 0 14px 40px rgba(32, 116, 74, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+      }
+      .logo svg {
+        width: 42px;
+        height: 42px;
+        stroke: #fff;
+        stroke-width: 1.8;
+      }
+      h1 {
+        font-size: 68px;
+        font-weight: 750;
+        letter-spacing: -0.03em;
+        line-height: 1;
+      }
+      .tag {
+        font-size: 24px;
+        line-height: 1.45;
+        color: var(--muted);
+      }
+      .tag b {
+        color: var(--fg);
+        font-weight: 600;
+      }
+      .pills {
+        display: flex;
+        gap: 10px;
+      }
+      .pill {
+        font-size: 14px;
+        padding: 6px 12px;
+        border-radius: 99px;
+        border: 1px solid var(--border-accent);
+        color: var(--muted);
+        background: rgba(255, 255, 255, 0.02);
+      }
+      .right {
+        position: absolute;
+        right: 84px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 470px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+      .card {
+        background: var(--surface0);
+        border: 1px solid var(--border-accent);
+        border-radius: 14px;
+        padding: 14px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      }
+      .cap {
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--extra-muted);
+        padding: 2px 6px 10px;
+      }
+      .before .ws {
+        color: var(--extra-muted);
+      }
+      .before .ws span {
+        font-family: var(--mono);
+        font-size: 13px;
+      }
+      .after .ws {
+        color: var(--fg);
+        font-size: 15px;
+      }
+      .after .ws .sp {
+        margin-left: auto;
+        color: var(--accent-bright);
+      }
+      .arrow {
+        align-self: center;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--accent-bright);
+        font-size: 14px;
+        font-weight: 600;
+      }
+      .arrow svg {
+        width: 20px;
+        height: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="grid"></div>
+    <div class="left">
+      <div class="logo">
+        <svg class="icon" viewBox="0 0 24 24">
+          <path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z" />
+          <path d="M20 3v4" /><path d="M22 5h-4" /><path d="M4 17v2" /><path d="M5 18H3" />
+        </svg>
+      </div>
+      <h1>Tab Namer</h1>
+      <p class="tag">Rename Paseo workspaces from <b>what their Tabs are actually about</b> — using the model providers you already have.</p>
+      <div class="pills">
+        <span class="pill">Paseo plugin</span>
+        <span class="pill">Any enabled provider</span>
+        <span class="pill">No API keys</span>
+      </div>
+    </div>
+    <div class="right">
+      <div class="card before">
+        <div class="cap">Before</div>
+        <div class="ws"><i class="dot"></i><span>new-workspace-7</span></div>
+        <div class="ws"><i class="dot"></i><span>feat/tmp-2</span></div>
+        <div class="ws"><i class="dot"></i><span>untitled</span></div>
+      </div>
+      <div class="arrow">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14" /><path d="m19 12-7 7-7-7" /></svg>
+        One click
+      </div>
+      <div class="card after">
+        <div class="cap">After</div>
+        <div class="ws"><i class="dot live"></i>修复 OAuth 回调重定向循环<span class="sp">✦</span></div>
+        <div class="ws"><i class="dot live"></i>为导出接口添加分页与限流<span class="sp">✦</span></div>
+        <div class="ws"><i class="dot live"></i>迁移 CI 到 GitHub Actions<span class="sp">✦</span></div>
+      </div>
+    </div>
+  </body>
+</html>

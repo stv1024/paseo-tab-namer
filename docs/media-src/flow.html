@@ -1,0 +1,128 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="base.css" />
+    <style>
+      :root {
+        --w: 1440px;
+        --h: 450px;
+      }
+      body {
+        background: radial-gradient(1000px 400px at 50% 0%, rgba(32, 116, 74, 0.16), transparent 70%), var(--sidebar);
+        padding: 46px 56px;
+      }
+      h2 {
+        font-size: 28px;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+      }
+      .sub {
+        color: var(--muted);
+        font-size: 16px;
+        margin-top: 8px;
+      }
+      .flow {
+        margin-top: 44px;
+        display: flex;
+        align-items: stretch;
+      }
+      .step {
+        flex: 1;
+        background: var(--surface0);
+        border: 1px solid var(--border-accent);
+        border-radius: 14px;
+        padding: 22px 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .num {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        display: grid;
+        place-items: center;
+        font-weight: 700;
+        background: rgba(124, 203, 160, 0.12);
+        color: var(--accent-bright);
+        border: 1px solid rgba(124, 203, 160, 0.25);
+      }
+      .step b {
+        font-size: 17px;
+      }
+      .step p {
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.6;
+      }
+      .step code {
+        font-family: var(--mono);
+        font-size: 12.5px;
+        color: var(--fg);
+        background: var(--surface2);
+        padding: 1px 6px;
+        border-radius: 5px;
+      }
+      .link {
+        width: 46px;
+        display: grid;
+        place-items: center;
+        color: var(--surface3);
+      }
+      .link svg {
+        width: 22px;
+        height: 22px;
+      }
+      .bar {
+        margin-top: 26px;
+        display: flex;
+        gap: 22px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+      .bar span {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .bar svg {
+        color: var(--accent-bright);
+      }
+    </style>
+  </head>
+  <body>
+    <h2>How Tab Namer works</h2>
+    <p class="sub">Everything runs through your own Paseo daemon. The plugin never sees an endpoint or an API key.</p>
+    <div class="flow">
+      <div class="step">
+        <span class="num">1</span>
+        <b>Read Tabs</b>
+        <p>Pages through the latest, all, or one chosen Tab and keeps only user / assistant <em>text</em>. Tool logs, reasoning and images stay out.</p>
+      </div>
+      <div class="link"><svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg></div>
+      <div class="step">
+        <span class="num">2</span>
+        <b>Fit the budget</b>
+        <p>Counts a conservative bound (UTF-8 bytes + 256). Over budget, each Tab keeps its first ~25% and most recent ~75%, shared fairly.</p>
+      </div>
+      <div class="link"><svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg></div>
+      <div class="step">
+        <span class="num">3</span>
+        <b>Ask your provider</b>
+        <p>Starts a short-lived <code>tab-namer</code> session with the provider and model you picked — Claude, Codex, OMP or a custom one.</p>
+      </div>
+      <div class="link"><svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg></div>
+      <div class="step">
+        <span class="num">4</span>
+        <b>Apply &amp; clean up</b>
+        <p>Re-checks the current name, applies the new one and archives the helper session. Directory and Git branch are untouched.</p>
+      </div>
+    </div>
+    <div class="bar">
+      <span><svg class="icon" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" /></svg>Background jobs — closing the popover is fine</span>
+      <span><svg class="icon" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" /></svg>One job per workspace, three in parallel</span>
+      <span><svg class="icon" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" /></svg>Refuses to overwrite a name changed meanwhile</span>
+    </div>
+  </body>
+</html>

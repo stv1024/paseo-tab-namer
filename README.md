@@ -1,70 +1,147 @@
-# Tab Namer
+<p align="center">
+  <img src="docs/images/banner.png" alt="Tab Namer — rename Paseo workspaces from what their Tabs are actually about" width="100%" />
+</p>
 
-根据 Tab 内容为已有 workspace 重新生成名称。模型来自 Paseo 中已启用的服务，不绑定任何特定接口。要求 Paseo 0.11.2 或更新版本。
+<p align="center">
+  <a href="https://github.com/stv1024/paseo-tab-namer/releases"><img alt="Version" src="https://img.shields.io/badge/version-0.1.0-20744a?style=flat-square" /></a>
+  <img alt="Paseo" src="https://img.shields.io/badge/paseo-%E2%89%A5%200.11.2-7ccba0?style=flat-square" />
+  <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-strict-3178c6?style=flat-square&logo=typescript&logoColor=white" />
+  <img alt="Tests" src="https://img.shields.io/badge/tests-node%3Atest-555?style=flat-square" />
+</p>
 
-## 使用
+<p align="center">
+  <b>English</b> · <a href="README.zh-CN.md">简体中文</a>
+</p>
 
-1. 点击 workspace 顶部的 **✨ Tab Namer** 按钮。
-2. 选择最近 Tab、全部 Tab 或指定 Tab。
-3. 如需检查发送内容和预算，展开 **更多**，再点 **预览输入**。用量详情也在此处显示。
-4. 点击 **生成名称**，生成成功后立即自动应用。点击 **再次生成** 会生成并应用另一个名称。
-5. 如需手动编辑，修改输入框后点击 **应用手动修改**。仅修改显示名称，不修改目录或 Git 分支。
+---
 
-弹窗打开时自动读取最新状态。平时不显示重新加载按钮；加载失败时显示 **重试**，操作失败或发生名称冲突时显示 **刷新状态**。
+**Tab Namer** is a [Paseo](https://github.com/getpaseo/paseo) plugin that gives your workspaces names that actually mean something. It reads the conversation in a workspace's Tabs, asks a model from one of the providers you've already enabled in Paseo, and applies a short, specific name, such as `修复 OAuth 回调重定向循环` instead of `new-workspace-7`.
 
-侧栏底部还有 **Tab Namer** 入口。命令中心可搜索 **Tab Namer：重命名当前 workspace**、**Tab Namer：根据当前 Tab**、**Tab Namer 设置**。Paseo 目前不支持把插件按钮放入原生右键菜单或重命名对话框。
+- ✨ **One click**: a Sparkles button in every workspace header. The new name is applied as soon as it's generated.
+- 🔌 **Uses your existing providers**: Claude, Codex, OMP or any custom provider enabled in Paseo. The plugin has no endpoint, API key or extra dependency of its own.
+- 🎯 **You choose the context**: name from the most recent Tab, all Tabs, or one Tab you pick.
+- 📏 **Fits long Tabs into a budget**: a conservative input budget keeps the beginning and the most recent part of each Tab and makes no extra summarization calls.
+- 🔒 **Text only**: only user and assistant text is sent. Tool logs, reasoning and raw images stay out.
+- 🧹 **Cleans up after itself**: the helper session is archived as soon as it replies. The directory and Git branch are never touched.
 
-## 设置
+> [!NOTE]
+> The plugin UI and the default naming prompt are in **Simplified Chinese**. Edit the prompt in settings to generate names in another language.
 
-从重命名弹窗的 **设置** 按钮进入。配置由 Paseo 的 host settings 保存，对本机全部 workspace 生效；修改后点击 **保存设置**。
+## Screenshots
 
-首次使用需在设置中选择 **服务** 和 **模型**。列表来自此主机 Paseo 已启用的服务（如 Claude、Codex、OMP 以及自定义服务），可点 **刷新服务列表** 重新读取。模型提供思考强度时可单独选择；“模型默认”会使用该模型的默认强度。命名任务简单，较低强度通常更快。
+<p align="center">
+  <img src="docs/images/popover.png" alt="Tab Namer popover open from the workspace header" width="100%" />
+  <br /><sub>The header popover after a generation, with <b>More</b> expanded to show budget and usage.</sub>
+</p>
 
-| 设置         | 默认值                   |
-| ------------ | ------------------------ |
-| 服务与模型   | 未选择，需首次设置       |
-| 思考强度     | 模型默认                 |
-| 最大输入预算 | 128,000，保守 token 上界 |
-| Tab 范围     | 最近更新的 Tab           |
-| 内容         | 用户与助手的文字消息     |
-| 名称长度     | 最多 48 个字符           |
-| 请求超时     | 180 秒                   |
+<p align="center">
+  <img src="docs/images/settings.png" alt="Tab Namer settings screen" width="100%" />
+  <br /><sub>Settings apply to every workspace on the host: provider, model, thinking level, budget and prompt.</sub>
+</p>
 
-还可配置统一命名提示词。
+> Images are illustrative mockups built from the plugin's real UI and Paseo's dark theme. Their sources are in [`docs/media-src`](docs/media-src).
 
-**计数说明：** 不同模型的 tokenizer 不同。本插件用 UTF-8 字节数加 256 作为保守输入预算，包含系统提示词和选取的消息。这个数通常显著高于实际 tokens；128,000 的预算通常容纳几万个实际 tokens，具体取决于文本。服务返回用量时界面显示实际 tokens；所选模型的上下文窗口应足够容纳该预算。
+## Installation
 
-短 Tab 的文字完整纳入。超限时每个 Tab 保留开头约 25% 和近期约 75%；多个 Tab 公平分配预算，短 Tab 退还未用空间。很长的 Tab 通过分页读取开头和近期内容，不调用额外模型摘要。预览明确显示截取状态。最多一次处理 100 个 Tab；极长 Tab 有读取页数上限。
+Requires **Paseo 0.11.2 or newer**.
 
-工具日志、推理过程和图片原始内容不进入请求。文字消息中的附件说明若由宿主保存在 `text` 中，会作为文字处理。生成只依据 Paseo 当前可读取的记录，不能恢复宿主已丢弃的历史。
-
-## 模型调用
-
-Paseo 目前只通过 agent 向插件提供模型能力。点击生成时，插件在当前 workspace 临时启动一个标题为 “Tab Namer” 的会话，把提示词和所选 Tab 文字作为一条消息发送，读取回复后立即归档该会话。这些会话带有 `tab-namer` 标签，不会被当作 Tab 读取。插件本身不读取任何地址或密钥，认证完全由 Paseo 的服务配置负责。
-
-Claude Code、Codex 等服务本身会附带系统提示词与工具定义，因此实际输入 tokens 会高于命名内容本身。提示词要求模型不调用工具；若模型仍请求工具权限，任务会停止并报错。
-
-所选 Tab 文字将发送到所选服务。点击生成后，服务端会生成并自动应用名称；即使关闭弹窗也会完成。预览输入不会修改名称。生成与预览采用后台任务，界面轮询状态，避免普通 RPC 的等待时限。每个 workspace 同时只运行一项任务；最多并发三项。完成任务的临时结果约十分钟后从内存移除。
-
-## 开发
-
-```powershell
-npm ci
-npm run typecheck
-npm test
-# 连接本机 Paseo，在当前目录对应的 workspace 跑一次真实命名，不修改名称
-npm run test:smoke -- claude/claude-sonnet-5-5
-paseo plugin install .
-# 修改后
-paseo plugin reload tab-namer
+```sh
+paseo plugin install git:stv1024/paseo-tab-namer
 ```
 
-Paseo 从 Git 安装插件时直接用 esbuild 打包源码，不执行 `npm install`。因此运行时代码只能导入 Paseo 自带的 `@getpaseo/plugin`、`react`、`react-native`、`zod` 和 Node 内置模块；其他依赖只能用于测试和开发脚本。
+Pin a version with `--ref <tag-or-commit>`. Update later with `paseo plugin update tab-namer`.
 
-## 已完成验证
+On first use, open **Settings → Tab Namer**, pick a **provider** and a **model**, then click **保存设置** (Save settings).
 
-- TypeScript 类型检查通过；21 项测试覆盖预算与截取、消息筛选、服务和模型列表、命名会话的创建与归档、超时/工具权限/运行失败、生成后自动应用和名称冲突检查。
-- 通过本机 Paseo 守护进程实测：`codex/gpt-6.1-sol` 约 20 秒、`claude/claude-sonnet-5-5` 约 16 秒生成名称，临时会话均已归档。
-- 经中转服务的 Claude 请求若不带思考强度会一直无响应，因此“模型默认”会显式发送模型的默认强度（与 Paseo 应用一致）。
+## Usage
 
-保存前会重读当前名称，发现它已改变就拒绝覆盖。宿主没有原子 compare-and-set 接口，因此无法防止极短的“检查后、写入前”并发修改。
+1. Click the **✨ Tab Namer** button in a workspace header.
+2. Pick the scope: **最近 Tab** (most recent), **全部 Tab** (all) or **指定 Tab** (a specific Tab).
+3. Click **生成名称** (Generate). The name is applied right away. **再次生成** (Regenerate) gives you another one.
+4. To fine-tune by hand, edit the field and click **应用手动修改** (Apply manual edit).
+
+Under **更多** (More), **预览输入** (Preview input) shows exactly what will be sent and how much of the budget it uses, without calling the model.
+
+Other entry points:
+
+| Where                 | What                                                                                     |
+| --------------------- | ---------------------------------------------------------------------------------------- |
+| Sidebar footer        | **Tab Namer** screen with a searchable list of every workspace                           |
+| Command center        | `Tab Namer：重命名当前 workspace`, `Tab Namer：根据当前 Tab`, `Tab Namer 设置`             |
+
+## How it works
+
+<p align="center">
+  <img src="docs/images/flow.png" alt="Read Tabs → fit the budget → ask your provider → apply and clean up" width="100%" />
+</p>
+
+Paseo exposes models to plugins only through agents. When you click Generate, the plugin starts a temporary session titled **Tab Namer** (tagged `tab-namer`) in the current workspace and sends the prompt and the selected Tab text as one message. It reads the reply and archives the session right away. Tagged sessions are never read back as Tabs. All authentication stays in Paseo's provider configuration.
+
+Generation runs as a background job that the UI polls, so you can close the popover. Each workspace runs one job at a time, with at most three jobs in parallel. Before writing, the plugin re-reads the current name and refuses to overwrite one that changed in the meantime.
+
+## Settings
+
+| Setting                   | Default                         | Notes                                                   |
+| ------------------------- | ------------------------------- | ------------------------------------------------------- |
+| Provider & model          | _not set_                       | Listed from the providers enabled on this Paseo host     |
+| Thinking level            | Model default                   | Lower is usually faster; naming is a simple task         |
+| Max input budget          | 128,000                         | Range 2,048–256,000; conservative upper bound            |
+| Default scope             | Most recent Tab                 | Or all Tabs                                              |
+| Content                   | User + assistant text           | Or user text only                                        |
+| Max name length           | 48 characters                   | 8–120                                                    |
+| Request timeout           | 180 s                           | 15–600                                                   |
+| Naming prompt             | Built-in Chinese prompt         | Shared by all workspaces; can be reset to the default    |
+
+<details>
+<summary><b>About the input budget</b></summary>
+
+Tokenizers differ between models, so the budget counts **UTF-8 bytes + 256** for the system prompt and the selected messages. This is usually well above the real token count: 128,000 typically holds a few tens of thousands of real tokens. When the provider reports usage, the UI shows the real figures. Make sure the model's context window can hold the budget you set.
+
+Short Tabs are included in full. When the total goes over budget, each Tab keeps roughly its first 25% and its most recent 75%, and the budget is split fairly across Tabs (short Tabs give back what they don't use). Very long Tabs are read page by page, with a page limit. Up to 100 Tabs per run. The preview always says whether anything was cut.
+
+Providers such as Claude Code and Codex add their own system prompt and tool definitions, so billed input tokens are higher than the naming content itself. The prompt tells the model not to use tools. If it asks for tool permission anyway, the job stops with an error.
+
+</details>
+
+## Privacy
+
+- The text of the selected Tabs is sent to the provider **you** picked, and nowhere else.
+- Preview never calls a model and never renames anything.
+- The plugin stores no credentials. Settings live in Paseo host settings.
+- Finished job results are kept in memory for about ten minutes, then dropped.
+
+## Limitations
+
+- Paseo doesn't let plugins add items to the native workspace context menu or rename dialog, so Tab Namer adds a header button, a sidebar item and command-center entries instead.
+- Names can only be based on history Paseo still has. Anything the host already discarded can't be recovered.
+- Paseo has no atomic compare-and-set for names, so a change made in the instant between the check and the write can still be overwritten.
+
+## Development
+
+```sh
+npm ci
+npm run typecheck
+npm test                      # node:test suite under server/
+
+# Name the workspace for the current directory against your local Paseo,
+# without renaming it
+npm run test:smoke -- <provider>/<model>
+
+paseo plugin install .        # install from a local checkout
+paseo plugin reload tab-namer # after changes
+```
+
+When Paseo installs a plugin from Git, it bundles the source with esbuild and **does not run `npm install`**. Runtime code may only import what Paseo provides: `@getpaseo/plugin`, `react`, `react-native`, `zod` and Node built-ins. Everything in `devDependencies` is for type-checking, tests and scripts only.
+
+```
+index.client.tsx   UI entry: header button, sidebar item, screens, command center
+index.server.ts    RPC handlers and background jobs
+client/            rename popover/screen, settings screen, shared UI
+server/            Tab reading, budgeting, model session, naming logic (+ tests)
+shared/            RPC contracts and settings schema
+docs/media-src/    HTML sources for README images (node docs/media-src/render.mjs)
+```
+
+## Contributing
+
+Issues and pull requests are welcome. Before opening a PR, run `npm run typecheck` and `npm test`. For changes that affect naming quality, include before/after examples from `npm run test:smoke`.

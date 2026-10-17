@@ -1,0 +1,116 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="base.css" />
+    <style>
+      :root {
+        --w: 1440px;
+        --h: 760px;
+      }
+      .pop {
+        position: absolute;
+        top: 58px;
+        right: 16px;
+        width: 540px;
+      }
+      .pop::before {
+        content: "";
+        position: absolute;
+        top: -7px;
+        right: 98px;
+        width: 12px;
+        height: 12px;
+        background: var(--surface0);
+        border-left: 1px solid var(--border-accent);
+        border-top: 1px solid var(--border-accent);
+        transform: rotate(45deg);
+      }
+      .callout {
+        position: absolute;
+        font-size: 13px;
+        font-weight: 600;
+        color: #0f1a14;
+        background: var(--accent-bright);
+        padding: 5px 10px;
+        border-radius: 99px;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="window">
+      <aside class="sidebar">
+        <div class="project">checkout-web</div>
+        <div class="ws active"><i class="dot live"></i>修复 OAuth 回调重定向循环</div>
+        <div class="ws"><i class="dot"></i>为导出接口添加分页与限流</div>
+        <div class="ws"><i class="dot"></i>迁移 CI 到 GitHub Actions</div>
+        <div class="project">design-system</div>
+        <div class="ws"><i class="dot"></i>重构 Button 变体与主题令牌</div>
+        <div class="ws"><i class="dot"></i>new-workspace-12</div>
+        <div class="footer">
+          <div class="ws">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z" /><path d="M20 3v4" /><path d="M22 5h-4" /></svg>
+            Tab Namer
+          </div>
+          <div class="ws">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" /><circle cx="12" cy="12" r="3" /></svg>
+            Settings
+          </div>
+        </div>
+      </aside>
+      <section class="main">
+        <div class="header">
+          <span class="title">修复 OAuth 回调重定向循环</span>
+          <span class="branch">fix/oauth-callback</span>
+          <span class="spacer"></span>
+          <span class="hbtn"><svg class="icon" viewBox="0 0 24 24"><circle cx="18" cy="18" r="3" /><circle cx="6" cy="6" r="3" /><path d="M6 21V9a9 9 0 0 0 9 9" /></svg></span>
+          <span class="hbtn"><svg class="icon" viewBox="0 0 24 24"><polyline points="4 17 10 11 4 5" /><line x1="12" x2="20" y1="19" y2="19" /></svg></span>
+          <span class="hbtn on"><svg class="icon" viewBox="0 0 24 24"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z" /><path d="M20 3v4" /><path d="M22 5h-4" /></svg></span>
+          <span class="hbtn"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1" /><circle cx="19" cy="12" r="1" /><circle cx="5" cy="12" r="1" /></svg></span>
+        </div>
+        <div class="tabs">
+          <div class="tab active">Claude · 登录后一直跳回 /login</div>
+          <div class="tab">Codex · 补充回调单测</div>
+          <div class="tab">Terminal</div>
+        </div>
+        <div class="chat" style="padding-right: 600px; opacity: 0.6">
+          <div class="msg user">用户登录成功后又被重定向回 /login，看起来是 OAuth 回调里 state 校验出了问题，帮我查一下。</div>
+          <div class="msg">我检查了 <code>auth/callback.ts</code>：state 存在 sessionStorage，但回调页在新域名下打开，读不到原值，于是校验失败并重新发起登录……</div>
+          <div class="msg user">改成用带签名的 cookie 存 state，并补上测试。</div>
+          <div class="msg">已改为 HttpOnly 签名 cookie，新增 3 个回调用例，全部通过。</div>
+        </div>
+      </section>
+    </div>
+
+    <div class="panel pop">
+      <div class="row between">
+        <span class="h1">Tab Namer</span>
+        <span class="btn">设置</span>
+      </div>
+      <div class="note">checkout-web</div>
+      <div class="row">
+        <span class="btn primary">最近 Tab</span>
+        <span class="btn">全部 Tab (2)</span>
+        <span class="btn">指定 Tab</span>
+      </div>
+      <div class="note">最近 Tab：Claude · 登录后一直跳回 /login</div>
+      <div>
+        <div class="label">名称</div>
+        <div class="input focus">修复 OAuth 回调重定向循环</div>
+      </div>
+      <div class="note">生成成功后会自动应用名称。</div>
+      <div class="row">
+        <span class="btn primary">再次生成</span>
+        <span class="btn ghost">收起</span>
+      </div>
+      <span class="btn" style="align-self: flex-start">预览输入</span>
+      <div class="stats">
+        <div class="note">保守预算 9,842 / 128,000</div>
+        <div class="note">1 个 Tab · 已读取 14 条文字消息 · 所选 Tab 文字完整纳入</div>
+        <div class="note">模型：claude/claude-haiku-5-5 · 实际输入 3,117 tokens · 输出 14 tokens</div>
+      </div>
+      <div class="note ok">已自动应用。</div>
+    </div>
+  </body>
+</html>
