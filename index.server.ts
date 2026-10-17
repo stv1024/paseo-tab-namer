@@ -18,7 +18,7 @@ export default function contribute(server: PluginServerContext) {
   const read = async () => {
     const s = await settings.read();
     if (s.status !== "ready")
-      throw new Error("设置无效，请打开 AI 重命名设置修复。");
+      throw new Error("设置无效，请打开 Tab Namer 设置修复。");
     return s.values;
   };
   const busy = new Set<string>();

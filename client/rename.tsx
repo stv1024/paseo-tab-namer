@@ -197,7 +197,7 @@ export function RenameForm({
         }}
       >
         <Text style={{ color: c.foreground, fontSize: 22, fontWeight: "700" }}>
-          AI 重命名
+          Tab Namer
         </Text>
         <Button theme={theme} disabled={!!busy} onPress={openSettings}>
           设置
@@ -476,7 +476,7 @@ export function RenameScreen(
                 fontWeight: "700",
               }}
             >
-              AI 重命名
+              Tab Namer
             </Text>
             <Button theme={props.theme} onPress={props.openSettings}>
               设置

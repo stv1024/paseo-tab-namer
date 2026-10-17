@@ -130,7 +130,7 @@ function SettingsForm({
       }}
     >
       <Text style={{ color: c.foreground, fontSize: 26, fontWeight: "700" }}>
-        AI 重命名设置
+        Tab Namer 设置
       </Text>
       <Note theme={theme}>
         这些设置适用于此主机上的所有 workspace。修改后点击底部“保存设置”。

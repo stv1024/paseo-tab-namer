@@ -1,10 +1,10 @@
-# Paseo AI 重命名
+# Tab Namer
 
 根据 Tab 内容为已有 workspace 重新生成名称。面向本机使用，要求 Paseo 0.11.2 或更新版本。
 
 ## 使用
 
-1. 点击 workspace 顶部的 **✨ AI 重命名** 按钮。
+1. 点击 workspace 顶部的 **✨ Tab Namer** 按钮。
 2. 选择最近 Tab、全部 Tab 或指定 Tab。
 3. 如需检查发送内容和预算，展开 **更多**，再点 **预览输入**。用量详情也在此处显示。
 4. 点击 **生成名称**，生成成功后立即自动应用。点击 **再次生成** 会生成并应用另一个名称。
@@ -12,7 +12,7 @@
 
 弹窗打开时自动读取最新状态。平时不显示重新加载按钮；加载失败时显示 **重试**，操作失败或发生名称冲突时显示 **刷新状态**。
 
-侧栏底部还有 **AI 重命名** 入口。命令中心可搜索 **AI 重命名当前 workspace**、**AI 重命名：根据当前 Tab**、**AI 重命名设置**。Paseo 目前不支持把插件按钮放入原生右键菜单或重命名对话框。
+侧栏底部还有 **Tab Namer** 入口。命令中心可搜索 **Tab Namer：重命名当前 workspace**、**Tab Namer：根据当前 Tab**、**Tab Namer 设置**。Paseo 目前不支持把插件按钮放入原生右键菜单或重命名对话框。
 
 ## 设置
 
@@ -55,7 +55,7 @@ npm test
 npm run test:smoke
 paseo plugin install .
 # 修改后
-paseo plugin reload ai-rename
+paseo plugin reload tab-namer
 ```
 
 插件以本地目录安装，需保留 `node_modules`。尚未发布 npm 包或远程仓库。

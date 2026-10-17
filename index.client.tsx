@@ -38,21 +38,21 @@ export default function contribute(client: PluginClientContext) {
       />
     </ScrollView>
   );
-  client.addScreen({ id: "rename", title: "AI 重命名", Component: Screen });
+  client.addScreen({ id: "rename", title: "Tab Namer", Component: Screen });
   client.addSettingsScreen({
     id: "rename-settings",
-    title: "AI 重命名",
+    title: "Tab Namer",
     icon: "Sparkles",
     Component: SettingsScreen,
   });
   client.addSidebarFooterItem({
-    id: "ai-rename",
-    title: "AI 重命名",
+    id: "tab-namer",
+    title: "Tab Namer",
     Component: Sidebar,
   });
   client.addCommandCenterItem({
     id: "rename-workspace",
-    title: "AI 重命名当前 workspace",
+    title: "Tab Namer：重命名当前 workspace",
     icon: "Sparkles",
     context: "workspace",
     keywords: ["rename", "name", "重命名", "名称"],
@@ -62,7 +62,7 @@ export default function contribute(client: PluginClientContext) {
   });
   client.addCommandCenterItem({
     id: "rename-agent",
-    title: "AI 重命名：根据当前 Tab",
+    title: "Tab Namer：根据当前 Tab",
     icon: "Sparkles",
     context: "agent",
     keywords: ["rename", "name", "重命名"],
@@ -75,7 +75,7 @@ export default function contribute(client: PluginClientContext) {
   });
   client.addCommandCenterItem({
     id: "rename-settings",
-    title: "AI 重命名设置",
+    title: "Tab Namer 设置",
     icon: "Settings",
     context: "global",
     keywords: ["rename", "prompt", "tokens", "重命名"],
@@ -101,10 +101,10 @@ export default function contribute(client: PluginClientContext) {
             buttons.set(
               w.id,
               client.addHeaderButton({
-                id: "ai-rename",
+                id: "tab-namer",
                 workspaceId: w.id,
                 button: {
-                  title: "AI 重命名",
+                  title: "Tab Namer",
                   icon: "Sparkles",
                   behavior: { kind: "popover", Content: Popover },
                 },

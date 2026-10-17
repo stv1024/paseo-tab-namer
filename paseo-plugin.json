@@ -1,6 +1,6 @@
 {
-  "id": "ai-rename",
-  "name": "AI 重命名",
+  "id": "tab-namer",
+  "name": "Tab Namer",
   "description": "根据 Tab 重新生成 workspace 名称，支持统一提示词、模型和输入预算设置。",
   "media": [],
   "requirements": {
