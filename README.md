@@ -7,6 +7,7 @@
   <img alt="Paseo" src="https://img.shields.io/badge/paseo-%E2%89%A5%200.11.2-7ccba0?style=flat-square" />
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-strict-3178c6?style=flat-square&logo=typescript&logoColor=white" />
   <img alt="Tests" src="https://img.shields.io/badge/tests-node%3Atest-555?style=flat-square" />
+  <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-blue?style=flat-square" /></a>
 </p>
 
 <p align="center">
@@ -145,3 +146,7 @@ docs/media-src/    HTML sources for README images (node docs/media-src/render.mj
 ## Contributing
 
 Issues and pull requests are welcome. Before opening a PR, run `npm run typecheck` and `npm test`. For changes that affect naming quality, include before/after examples from `npm run test:smoke`.
+
+## License
+
+[MIT](LICENSE) © Stephen Zhou
