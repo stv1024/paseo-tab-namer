@@ -1,22 +1,11 @@
 import { ScrollView } from "react-native";
 import type {
   PluginClientContext,
-  PluginSidebarItemProps,
   PluginScreenProps,
   PluginButtonContentProps,
 } from "@getpaseo/plugin/client";
-import { SidebarRow } from "@getpaseo/plugin/client/ui";
 import { RenameForm, RenameScreen } from "./client/rename";
 import { SettingsScreen } from "./client/settings";
-function Sidebar({ currentScreen, openScreen }: PluginSidebarItemProps) {
-  return (
-    <SidebarRow
-      icon="Sparkles"
-      active={currentScreen?.screenId === "rename"}
-      onPress={() => openScreen({ screenId: "rename" })}
-    />
-  );
-}
 export default function contribute(client: PluginClientContext) {
   const openSettings = () => client.openSettings("rename-settings");
   const Screen = (props: PluginScreenProps) => (
@@ -45,10 +34,15 @@ export default function contribute(client: PluginClientContext) {
     icon: "Sparkles",
     Component: SettingsScreen,
   });
-  client.addSidebarFooterItem({
-    id: "tab-namer",
-    title: "Tab Namer",
-    Component: Sidebar,
+  client.addCommandCenterItem({
+    id: "rename-any",
+    title: "Tab Namer：选择 workspace 重命名",
+    icon: "Sparkles",
+    context: "global",
+    keywords: ["rename", "name", "workspace", "重命名", "名称"],
+    onSelect({ openScreen }) {
+      openScreen({ screenId: "rename" });
+    },
   });
   client.addCommandCenterItem({
     id: "rename-workspace",

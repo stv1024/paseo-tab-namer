@@ -64,8 +64,7 @@ paseo plugin install git:stv1024/paseo-tab-namer
 
 | 位置       | 内容                                                                         |
 | ---------- | ---------------------------------------------------------------------------- |
-| 侧栏底部   | **Tab Namer** 页面，可搜索全部 workspace                                     |
-| 命令中心   | `Tab Namer：重命名当前 workspace`、`Tab Namer：根据当前 Tab`、`Tab Namer 设置` |
+| 命令中心   | `Tab Namer：选择 workspace 重命名`（可搜索全部 workspace）、`Tab Namer：重命名当前 workspace`、`Tab Namer：根据当前 Tab`、`Tab Namer 设置` |
 
 ## 工作原理
 
@@ -110,7 +109,7 @@ Claude Code、Codex 等服务会附带自身的系统提示词与工具定义，
 
 ## 限制
 
-- Paseo 不支持把插件按钮放入原生 workspace 右键菜单或重命名对话框，因此改为提供顶部按钮、侧栏入口和命令中心条目。
+- Paseo 不支持把插件按钮放入原生 workspace 右键菜单或重命名对话框，因此改为提供顶部按钮和命令中心条目。插件不使用侧栏，不占用手机端 workspace 列表的空间。
 - 只能依据 Paseo 当前可读取的记录命名，无法恢复宿主已丢弃的历史。
 - 宿主没有原子 compare-and-set 接口，无法防止“检查后、写入前”这一瞬间的并发修改。
 
@@ -131,7 +130,7 @@ paseo plugin reload tab-namer # 修改后重新加载
 Paseo 从 Git 安装插件时直接用 esbuild 打包源码，**不执行 `npm install`**。运行时代码只能导入 Paseo 自带的 `@getpaseo/plugin`、`react`、`react-native`、`zod` 和 Node 内置模块；`devDependencies` 只用于类型检查、测试和脚本。
 
 ```
-index.client.tsx   界面入口：顶部按钮、侧栏、页面、命令中心
+index.client.tsx   界面入口：顶部按钮、页面、命令中心
 index.server.ts    RPC 处理与后台任务
 client/            重命名弹窗/页面、设置页、通用组件
 server/            Tab 读取、预算、模型会话、命名逻辑（含测试）

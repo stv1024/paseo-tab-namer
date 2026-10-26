@@ -67,8 +67,7 @@ Other entry points:
 
 | Where                 | What                                                                                     |
 | --------------------- | ---------------------------------------------------------------------------------------- |
-| Sidebar footer        | **Tab Namer** screen with a searchable list of every workspace                           |
-| Command center        | `Tab Namer：重命名当前 workspace`, `Tab Namer：根据当前 Tab`, `Tab Namer 设置`             |
+| Command center        | `Tab Namer：选择 workspace 重命名` (searchable list of every workspace), `Tab Namer：重命名当前 workspace`, `Tab Namer：根据当前 Tab`, `Tab Namer 设置` |
 
 ## How it works
 
@@ -113,7 +112,7 @@ Providers such as Claude Code and Codex add their own system prompt and tool def
 
 ## Limitations
 
-- Paseo doesn't let plugins add items to the native workspace context menu or rename dialog, so Tab Namer adds a header button, a sidebar item and command-center entries instead.
+- Paseo doesn't let plugins add items to the native workspace context menu or rename dialog, so Tab Namer adds a header button and command-center entries instead. It does not use the sidebar, so it takes no space in the mobile workspace list.
 - Names can only be based on history Paseo still has. Anything the host already discarded can't be recovered.
 - Paseo has no atomic compare-and-set for names, so a change made in the instant between the check and the write can still be overwritten.
 
@@ -135,7 +134,7 @@ paseo plugin reload tab-namer # after changes
 When Paseo installs a plugin from Git, it bundles the source with esbuild and **does not run `npm install`**. Runtime code may only import what Paseo provides: `@getpaseo/plugin`, `react`, `react-native`, `zod` and Node built-ins. Everything in `devDependencies` is for type-checking, tests and scripts only.
 
 ```
-index.client.tsx   UI entry: header button, sidebar item, screens, command center
+index.client.tsx   UI entry: header button, screens, command center
 index.server.ts    RPC handlers and background jobs
 client/            rename popover/screen, settings screen, shared UI
 server/            Tab reading, budgeting, model session, naming logic (+ tests)
