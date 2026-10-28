@@ -1,9 +1,11 @@
 # Tab Namer
 
-根据 Tab 内容为已有 workspace 生成新名称。通过顶部 ✨ 按钮或命令中心打开。可以预览输入、选择 Tab 范围和反复生成；生成成功后立即自动应用。手动编辑时可点击“应用手动修改”。
+Tab Namer gives an existing workspace a new name based on what its Tabs are about. Open it from the ✨ button in the workspace header or from the command center. You can preview the input, choose which Tabs to use, and generate again. A generated name is applied right away. To apply a name you edited by hand, click "应用手动修改" (Apply manual edit).
 
-设置页统一配置命名提示词、模型、最大输入预算、名称长度和超时。服务和模型从此主机 Paseo 已启用的服务列表中选择，不绑定特定接口，插件不接触任何密钥。
+The settings screen holds one naming prompt, model, maximum input budget, name length, and timeout for all workspaces. You pick the provider and model from the providers already enabled on this Paseo host. The plugin has no endpoint of its own and never handles API keys.
 
-默认输入预算为 128,000 的保守 token 上界（UTF-8 字节数加余量），通常高于模型实际 tokens。超限保留任务开头和近期内容，并显示截取状态。工具日志、推理和图片原始内容不进入请求。所选文字会发送到所选服务：插件在当前 workspace 临时启动一个命名会话，完成后自动归档。
+The default input budget is a conservative upper bound of 128,000 tokens (UTF-8 bytes plus a margin), usually above the real token count. When the selected text goes over budget, Tab Namer keeps the start of each Tab and its recent part, and shows that it cut the text. Tool logs, reasoning, and raw image content are never sent. The selected text goes to the provider you chose: the plugin starts a temporary session in the current workspace for the request and archives it when the reply arrives.
 
-需要 Paseo 0.11.2 或更新版本。原生 workspace 右键菜单和重命名对话框不提供插件扩展位置。
+The plugin UI and the default naming prompt are in Simplified Chinese. Edit the prompt in settings to get names in another language.
+
+Requires Paseo 0.11.2 or later. Paseo does not let plugins add items to the native workspace context menu or rename dialog, so Tab Namer uses the header button and the command center.

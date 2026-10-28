@@ -1,8 +1,16 @@
 {
   "id": "tab-namer",
   "name": "Tab Namer",
-  "description": "根据 Tab 重新生成 workspace 名称，支持统一提示词、模型和输入预算设置。",
-  "media": [],
+  "description": "Rename a workspace from what its Tabs are about, with one shared prompt, model, and input budget.",
+  "media": [
+    "docs/images/popover.png",
+    "docs/images/settings.png"
+  ],
+  "translations": {
+    "zh-CN": {
+      "description": "根据 Tab 重新生成 workspace 名称，支持统一提示词、模型和输入预算设置。"
+    }
+  },
   "requirements": {
     "paseo": ">=0.11.2"
   }

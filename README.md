@@ -142,6 +142,22 @@ shared/            RPC contracts and settings schema
 docs/media-src/    HTML sources for README images (node docs/media-src/render.mjs)
 ```
 
+### Release
+
+Releases go to npm as `paseo-tab-namer` through
+[`.github/workflows/release.yml`](.github/workflows/release.yml), with npm Trusted
+Publishing (no npm token). Bump `version` in `package.json`, add a `CHANGELOG.md`
+section, then commit, tag and push:
+
+```sh
+npm run typecheck && npm test && npm run pack:npm   # check the packed file list
+git push origin main
+git tag -a v0.1.0 -m "Tab Namer 0.1.0" && git push origin v0.1.0
+```
+
+The tag push publishes the tarball. Then create the GitHub release from the tag.
+The official registry opens a bump PR for each new npm version.
+
 ## Contributing
 
 Issues and pull requests are welcome. Before opening a PR, run `npm run typecheck` and `npm test`. For changes that affect naming quality, include before/after examples from `npm run test:smoke`.
