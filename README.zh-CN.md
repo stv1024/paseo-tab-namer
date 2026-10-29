@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/stv1024/paseo-tab-namer/releases"><img alt="Version" src="https://img.shields.io/badge/version-0.1.0-20744a?style=flat-square" /></a>
+  <a href="https://github.com/stv1024/paseo-tab-namer/releases"><img alt="Version" src="https://img.shields.io/badge/version-0.2.0-20744a?style=flat-square" /></a>
   <img alt="Paseo" src="https://img.shields.io/badge/paseo-%E2%89%A5%200.11.2-7ccba0?style=flat-square" />
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-strict-3178c6?style=flat-square&logo=typescript&logoColor=white" />
   <img alt="Tests" src="https://img.shields.io/badge/tests-node%3Atest-555?style=flat-square" />
@@ -54,11 +54,11 @@ paseo plugin install git:stv1024/paseo-tab-namer
 ## 使用
 
 1. 点击 workspace 顶部的 **✨ Tab Namer** 按钮。
-2. 选择范围：**最近 Tab**、**全部 Tab** 或 **指定 Tab**。
-3. 点击 **生成名称**，名称会立即应用；点 **再次生成** 可换一个。
-4. 如需手动微调，修改输入框后点击 **应用手动修改**。
+2. 点击弹窗最上方的大按钮 **生成名称**（就在顶部按钮正下方，弹窗一打开就能点），名称会立即应用；在同一位置点 **再次生成** 可换一个。
+3. 如需改变命名依据，先选择范围：**最近 Tab**、**全部 Tab** 或 **指定 Tab**。
+4. 如需手动微调，修改输入框后点击 **应用** 或按回车。
 
-展开 **更多** 后点 **预览输入**，可查看将要发送的内容和预算占用，不调用模型。
+弹窗底部的 **设置** 可打开设置。展开 **更多** 后点 **预览输入**，可查看将要发送的内容和预算占用，不调用模型。
 
 其他入口：
 

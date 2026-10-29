@@ -1,6 +1,6 @@
 # Tab Namer
 
-Tab Namer gives an existing workspace a new name based on what its Tabs are about. Open it from the ✨ button in the workspace header or from the command center. You can preview the input, choose which Tabs to use, and generate again. A generated name is applied right away. To apply a name you edited by hand, click "应用手动修改" (Apply manual edit).
+Tab Namer gives an existing workspace a new name based on what its Tabs are about. Open it from the ✨ button in the workspace header or from the command center. You can preview the input, choose which Tabs to use, and generate again. A generated name is applied right away. To apply a name you edited by hand, click "应用" (Apply) next to the name field.
 
 The settings screen holds one naming prompt, model, maximum input budget, name length, and timeout for all workspaces. You pick the provider and model from the providers already enabled on this Paseo host. The plugin has no endpoint of its own and never handles API keys.
 

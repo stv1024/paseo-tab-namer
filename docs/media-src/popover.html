@@ -12,13 +12,14 @@
         position: absolute;
         top: 58px;
         right: 16px;
-        width: 540px;
+        width: 420px;
+        padding: 14px;
       }
       .pop::before {
         content: "";
         position: absolute;
         top: -7px;
-        right: 98px;
+        right: 44px;
         width: 12px;
         height: 12px;
         background: var(--surface0);
@@ -80,33 +81,29 @@
     </div>
 
     <div class="panel pop">
-      <div class="row between">
-        <span class="h1">Tab Namer</span>
-        <span class="btn">设置</span>
+      <span class="btn lg primary">再次生成</span>
+      <div class="note">Tab Namer · checkout-web</div>
+      <div class="row" style="gap: 6px">
+        <span class="btn sm primary">最近 Tab</span>
+        <span class="btn sm">全部 Tab (2)</span>
+        <span class="btn sm">指定 Tab</span>
       </div>
-      <div class="note">checkout-web</div>
-      <div class="row">
-        <span class="btn primary">最近 Tab</span>
-        <span class="btn">全部 Tab (2)</span>
-        <span class="btn">指定 Tab</span>
-      </div>
-      <div class="note">最近 Tab：Claude · 登录后一直跳回 /login</div>
       <div>
         <div class="label">名称</div>
         <div class="input focus">修复 OAuth 回调重定向循环</div>
       </div>
-      <div class="note">生成成功后会自动应用名称。</div>
-      <div class="row">
-        <span class="btn primary">再次生成</span>
-        <span class="btn ghost">收起</span>
-      </div>
-      <span class="btn" style="align-self: flex-start">预览输入</span>
+      <div class="note ok">已自动应用。</div>
+      <div class="note">最近 Tab：Claude · 登录后一直跳回 /login</div>
+      <span class="btn sm" style="align-self: flex-start">预览输入</span>
       <div class="stats">
         <div class="note">保守预算 9,842 / 128,000</div>
         <div class="note">1 个 Tab · 已读取 14 条文字消息 · 所选 Tab 文字完整纳入</div>
         <div class="note">模型：claude/claude-haiku-5-5 · 实际输入 3,117 tokens · 输出 14 tokens</div>
       </div>
-      <div class="note ok">已自动应用。</div>
+      <div class="row between foot">
+        <span class="btn sm ghost">收起</span>
+        <span class="btn sm ghost">设置</span>
+      </div>
     </div>
   </body>
 </html>

@@ -220,6 +220,24 @@ svg.icon {
   font-weight: 400;
   padding: 9px 10px;
 }
+.btn.sm {
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+}
+.btn.lg {
+  min-height: 56px;
+  border-radius: 10px;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.foot {
+  border-top: 1px solid var(--border);
+  padding-top: 8px;
+  margin: 0 -4px;
+}
 .note {
   color: var(--muted);
   font-size: 13px;

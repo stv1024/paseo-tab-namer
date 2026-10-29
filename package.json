@@ -1,7 +1,7 @@
 {
   "name": "paseo-tab-namer",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Paseo plugin: rename a workspace from what its Tabs are about, using a model from a provider already enabled in Paseo.",
   "author": "stv1024",
   "license": "MIT",

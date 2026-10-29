@@ -1,4 +1,4 @@
-import { ScrollView } from "react-native";
+import { View } from "react-native";
 import type {
   PluginClientContext,
   PluginScreenProps,
@@ -11,10 +11,15 @@ export default function contribute(client: PluginClientContext) {
   const Screen = (props: PluginScreenProps) => (
     <RenameScreen {...props} openSettings={openSettings} />
   );
+  // The host surface is at most 420 wide, pads its content and scrolls it,
+  // so the popover only sets a width that fits inside that padding.
   const Popover = (props: PluginButtonContentProps) => (
-    <ScrollView
-      style={{ maxHeight: 720, width: props.layout.compact ? "100%" : 540 }}
-      contentContainerStyle={{ padding: 18 }}
+    <View
+      style={{
+        width: props.layout.compact ? "100%" : 392,
+        maxWidth: "100%",
+        padding: 2,
+      }}
     >
       <RenameForm
         key={props.workspaceId}
@@ -25,7 +30,7 @@ export default function contribute(client: PluginClientContext) {
           openSettings();
         }}
       />
-    </ScrollView>
+    </View>
   );
   client.addScreen({ id: "rename", title: "Tab Namer", Component: Screen });
   client.addSettingsScreen({

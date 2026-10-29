@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/stv1024/paseo-tab-namer/releases"><img alt="Version" src="https://img.shields.io/badge/version-0.1.0-20744a?style=flat-square" /></a>
+  <a href="https://github.com/stv1024/paseo-tab-namer/releases"><img alt="Version" src="https://img.shields.io/badge/version-0.2.0-20744a?style=flat-square" /></a>
   <img alt="Paseo" src="https://img.shields.io/badge/paseo-%E2%89%A5%200.11.2-7ccba0?style=flat-square" />
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-strict-3178c6?style=flat-square&logo=typescript&logoColor=white" />
   <img alt="Tests" src="https://img.shields.io/badge/tests-node%3Atest-555?style=flat-square" />
@@ -57,11 +57,11 @@ On first use, open **Settings → Tab Namer**, pick a **provider** and a **model
 ## Usage
 
 1. Click the **✨ Tab Namer** button in a workspace header.
-2. Pick the scope: **最近 Tab** (most recent), **全部 Tab** (all) or **指定 Tab** (a specific Tab).
-3. Click **生成名称** (Generate). The name is applied right away. **再次生成** (Regenerate) gives you another one.
-4. To fine-tune by hand, edit the field and click **应用手动修改** (Apply manual edit).
+2. Click the large **生成名称** (Generate) button at the top of the popover, right below the header button. It works as soon as the popover opens. The name is applied right away. **再次生成** (Regenerate), in the same place, gives you another one.
+3. To change what the name is based on, pick a scope first: **最近 Tab** (most recent), **全部 Tab** (all) or **指定 Tab** (a specific Tab).
+4. To fine-tune by hand, edit the field and click **应用** (Apply) or press Enter.
 
-Under **更多** (More), **预览输入** (Preview input) shows exactly what will be sent and how much of the budget it uses, without calling the model.
+At the bottom of the popover, **设置** (Settings) opens the settings. Under **更多** (More), **预览输入** (Preview input) shows exactly what will be sent and how much of the budget it uses, without calling the model.
 
 Other entry points:
 

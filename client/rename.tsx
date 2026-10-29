@@ -72,21 +72,32 @@ export function RenameForm({
   const [prompt, setPrompt] = useState("");
   const [previousTitle, setPreviousTitle] = useState("");
   const [showMore, setShowMore] = useState(false);
+  // Until the user picks a scope, follow the saved default. Generating does
+  // not need the workspace detail, so a click only waits for these settings.
+  const scope =
+    scopeTouched || preferences.status !== "ready"
+      ? selection.scope
+      : preferences.values.scope;
+  const scopeReady = scopeTouched || preferences.status !== "loading";
+  const [queued, setQueued] = useState(false);
   useEffect(() => {
-    if (!scopeTouched && preferences.status === "ready")
-      setSelection((s) => ({ ...s, scope: preferences.values.scope }));
-  }, [
-    preferences.status === "ready" ? preferences.values.scope : null,
-    scopeTouched,
-  ]);
+    if (queued && scopeReady) {
+      setQueued(false);
+      void act("generate");
+    }
+  }, [queued, scopeReady]);
+  // A generation can finish before the first detail load does.
+  const generated = useRef<string | null>(null);
   useEffect(() => {
     let active = true;
     void load({ workspaceId })
       .then((d) => {
-        if (active) {
-          setDetail(d);
-          setTitle(d.workspace.title ?? d.workspace.name);
-        }
+        if (!active) return;
+        const title = generated.current;
+        setDetail(
+          title ? { ...d, workspace: { ...d.workspace, title } } : d,
+        );
+        setTitle(title ?? d.workspace.title ?? d.workspace.name);
       })
       .catch((e) => {
         if (active) setError(e.message);
@@ -113,6 +124,7 @@ export function RenameForm({
       if (kind === "preview" || kind === "generate") {
         const { jobId } = await start({
           ...selection,
+          scope,
           kind,
           ...(previousTitle ? { previousTitle } : {}),
         });
@@ -129,6 +141,7 @@ export function RenameForm({
               setUsage(`模型：${r.model}`);
               setNotice("输入已准备好，尚未调用模型。");
             } else {
+              generated.current = r.title!;
               setTitle(r.title!);
               setDetail((current) =>
                 current
@@ -185,30 +198,43 @@ export function RenameForm({
     }
   }
   const c = theme.colors;
+  const currentTitle = detail
+    ? (detail.workspace.title ?? detail.workspace.name)
+    : "";
+  const edited = !!detail && !!title.trim() && title.trim() !== currentTitle;
   return (
     <View style={{ gap: 14, width: "100%" }}>
-      <View
-        style={{
-          flexDirection: "row",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: 12,
+      {/* A large primary action at the very top, right under the header
+          button that opens the popover, so the second click needs no aim. */}
+      <Button
+        theme={theme}
+        large
+        primary
+        disabled={!!busy || queued || (!!detail && !detail.agents.length)}
+        onPress={() => {
+          if (scopeReady) void act("generate");
+          else setQueued(true);
         }}
       >
-        <Text style={{ color: c.foreground, fontSize: 22, fontWeight: "700" }}>
-          Tab Namer
-        </Text>
-        <Button theme={theme} disabled={!!busy} onPress={openSettings}>
-          设置
-        </Button>
-      </View>
+        {busy === "generate" || queued
+          ? "正在生成…"
+          : previousTitle
+            ? "再次生成"
+            : "生成名称"}
+      </Button>
+      <Text
+        numberOfLines={1}
+        style={{ color: c.foregroundMuted, fontSize: 13, lineHeight: 20 }}
+      >
+        Tab Namer{detail ? ` · ${detail.workspace.project}` : ""}
+      </Text>
       {detail ? (
         <>
-          <Note theme={theme}>{detail.workspace.project}</Note>
           <Choices
             theme={theme}
-            disabled={!!busy}
-            value={selection.scope}
+            small
+            disabled={!!busy || queued}
+            value={scope}
             onChange={(scope) => {
               setScopeTouched(true);
               setSelection((s) => ({
@@ -226,12 +252,7 @@ export function RenameForm({
               { value: "selected", label: "指定 Tab" },
             ]}
           />
-          {showMore && selection.scope === "latest" && (
-            <Note theme={theme}>
-              最近 Tab：{detail.agents[0]?.title ?? "无 Tab"}
-            </Note>
-          )}
-          {selection.scope === "selected" && (
+          {scope === "selected" && (
             <ScrollView style={{ maxHeight: 150 }} nestedScrollEnabled>
               {detail.agents.map((a) => (
                 <Pressable
@@ -265,59 +286,62 @@ export function RenameForm({
             value={title}
             onChange={setTitle}
             disabled={!!busy}
+            onSubmit={() => {
+              if (edited) void act("save");
+            }}
+            accessory={
+              edited ? (
+                <Button
+                  theme={theme}
+                  disabled={!!busy}
+                  onPress={() => {
+                    void act("save");
+                  }}
+                >
+                  {busy === "save" ? "正在应用…" : "应用"}
+                </Button>
+              ) : undefined
+            }
           />
-          <Note theme={theme}>生成成功后会自动应用名称。</Note>
-          <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
+        </>
+      ) : null}
+      {error ? (
+        <View style={{ gap: 8, alignItems: "flex-start" }}>
+          <Note theme={theme} error>
+            {error}
+          </Note>
+          <Button
+            theme={theme}
+            small
+            disabled={!!busy}
+            onPress={() => {
+              void act("reload");
+            }}
+          >
+            {detail ? "刷新状态" : "重试"}
+          </Button>
+        </View>
+      ) : (
+        <Note theme={theme}>
+          {notice ||
+            (queued
+              ? "正在准备…"
+              : detail
+                ? "生成后会直接应用新名称。"
+                : "正在加载 workspace…")}
+        </Note>
+      )}
+      {detail && showMore && (
+        <View style={{ gap: 10 }}>
+          {scope === "latest" && (
+            <Note theme={theme}>
+              最近 Tab：{detail.agents[0]?.title ?? "无 Tab"}
+            </Note>
+          )}
+          <View style={{ alignItems: "flex-start" }}>
             <Button
               theme={theme}
-              disabled={!!busy || !detail.agents.length}
-              primary
-              onPress={() => {
-                void act("generate");
-              }}
-            >
-              {busy === "generate"
-                ? "正在生成…"
-                : previousTitle
-                  ? "再次生成"
-                  : "生成名称"}
-            </Button>
-            {title.trim() !==
-              (detail.workspace.title ?? detail.workspace.name) && (
-              <Button
-                theme={theme}
-                disabled={
-                  !!busy ||
-                  !title.trim() ||
-                  title.trim() ===
-                    (detail.workspace.title ?? detail.workspace.name)
-                }
-                onPress={() => {
-                  void act("save");
-                }}
-              >
-                {busy === "save" ? "正在应用…" : "应用手动修改"}
-              </Button>
-            )}
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={showMore ? "收起更多选项" : "更多选项"}
-              accessibilityState={{ expanded: showMore }}
-              onPress={() => setShowMore((value) => !value)}
-              style={{
-                paddingHorizontal: 10,
-                paddingVertical: 10,
-                justifyContent: "center",
-              }}
-            >
-              <Text style={{ color: c.foregroundMuted }}>
-                {showMore ? "收起" : "更多"}
-              </Text>
-            </Pressable>
-          </View>
-          {showMore && (
-            <Button
-              theme={theme}
+              small
               disabled={!!busy || !detail.agents.length}
               onPress={() => {
                 void act("preview");
@@ -325,8 +349,8 @@ export function RenameForm({
             >
               {busy === "preview" ? "正在读取…" : "预览输入"}
             </Button>
-          )}
-          {showMore && stats && (
+          </View>
+          {stats && (
             <View
               style={{
                 backgroundColor: c.surface1,
@@ -353,7 +377,7 @@ export function RenameForm({
               ))}
             </View>
           )}
-          {showMore && !!prompt && (
+          {!!prompt && (
             <View style={{ gap: 8 }}>
               <Note theme={theme}>
                 以下为本次准备的输入。生成时会重新读取 Tab 中的最新内容。
@@ -379,36 +403,49 @@ export function RenameForm({
                   {prompt}
                 </Text>
               </ScrollView>
-              <Button theme={theme} onPress={() => setPrompt("")}>
-                收起预览
-              </Button>
+              <View style={{ alignItems: "flex-start" }}>
+                <Button theme={theme} small onPress={() => setPrompt("")}>
+                  收起预览
+                </Button>
+              </View>
             </View>
           )}
-        </>
-      ) : (
-        <>
-          <Note theme={theme}>
-            {error ? "Workspace 加载失败。" : "正在加载 workspace…"}
-          </Note>
-        </>
-      )}
-      {!!error && (
-        <View style={{ gap: 8 }}>
-          <Note theme={theme} error>
-            {error}
-          </Note>
-          <Button
-            theme={theme}
-            disabled={!!busy}
-            onPress={() => {
-              void act("reload");
-            }}
-          >
-            {detail ? "刷新状态" : "重试"}
-          </Button>
         </View>
       )}
-      {!!notice && <Note theme={theme}>{notice}</Note>}
+      {/* Rarely used actions stay out of the way, at the bottom. */}
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "center",
+          borderTopWidth: 1,
+          borderTopColor: c.border,
+          paddingTop: 8,
+          marginHorizontal: -4,
+        }}
+      >
+        {detail ? (
+          <Button
+            theme={theme}
+            small
+            ghost
+            onPress={() => setShowMore((value) => !value)}
+          >
+            {showMore ? "收起" : "更多"}
+          </Button>
+        ) : (
+          <View />
+        )}
+        <Button
+          theme={theme}
+          small
+          ghost
+          disabled={!!busy}
+          onPress={openSettings}
+        >
+          设置
+        </Button>
+      </View>
     </View>
   );
 }
