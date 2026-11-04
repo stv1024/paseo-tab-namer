@@ -1,3 +1,4 @@
+import { execCommand } from "@getpaseo/plugin/server";
 import type { Provider } from "../shared/contracts";
 import type { Settings } from "../shared/settings";
 import type { Agent, PaseoApi } from "./types";
@@ -6,6 +7,26 @@ import type { Agent, PaseoApi } from "./types";
 export const GENERATOR_LABEL = "tab-namer";
 export const isGenerator = (agent: Agent) =>
   agent.labels?.[GENERATOR_LABEL] !== undefined;
+
+// The plugin API can only archive an agent, and archived agents stay in the
+// agent history. The Paseo CLI can hard-delete it; PASEO_CLI is set by the
+// desktop app for the daemon and its plugins. Archive is the fallback.
+export async function discard(
+  agent: { id: string; archive(): Promise<unknown> },
+  exec = execCommand,
+) {
+  try {
+    await exec(
+      process.env.PASEO_CLI?.trim() || "paseo",
+      ["agent", "delete", agent.id],
+      { timeout: 15000 },
+    );
+  } catch {
+    await agent.archive().catch(() => {
+      /* Generation outcome matters more than cleanup of the helper Tab. */
+    });
+  }
+}
 
 export async function listProviders(
   paseo: PaseoApi,
@@ -75,7 +96,7 @@ export async function generate(
   let agent;
   try {
     // Paseo exposes LLMs to plugins as agents; plugins cannot create internal
-    // agents, so this one lives briefly in the workspace and is archived below.
+    // agents, so this one lives briefly in the workspace and is deleted below.
     agent = await paseo.workspaces.ref(workspaceId).agents.create({
       config: {
         provider: `${settings.provider}/${settings.model}`,
@@ -114,8 +135,6 @@ ${context.content}`,
       outputTokens: usage?.outputTokens ?? null,
     };
   } finally {
-    await agent.archive().catch(() => {
-      /* Generation outcome matters more than cleanup of the helper Tab. */
-    });
+    await discard(agent);
   }
 }

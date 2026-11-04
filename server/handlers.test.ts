@@ -1,8 +1,12 @@
 import assert from "node:assert/strict";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { test } from "node:test";
 import contribute from "../index.server";
 import { SettingsSchema } from "../shared/settings";
 import type { PluginServerContext } from "@getpaseo/plugin/server";
+// No CLI here, so the helper agent is archived instead of deleted on the daemon.
+process.env.PASEO_CLI = join(tmpdir(), "missing-paseo-cli.exe");
 
 test("background preview completes without changing the name; stale save is rejected", async () => {
   const handlers = new Map<
@@ -139,6 +143,7 @@ for (const scenario of [
             },
             agents: {
               create: async () => ({
+                id: "helper",
                 run: async (text: string) => {
                   requests++;
                   if (scenario === "concurrent rename")

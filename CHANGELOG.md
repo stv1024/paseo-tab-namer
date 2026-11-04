@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Delete the helper **Tab Namer** session after each generation instead of archiving it, so it no longer stays in the agent history. The plugin API can only archive agents, so the plugin calls `paseo agent delete` through the Paseo CLI. If the CLI is not available, the session is archived as before.
+
 ## 0.2.0
 
 - Redesign the header popover: **生成名称** (Generate) is now a large full-width button at the top, right below the header button, so the two clicks are close together. It can be clicked as soon as the popover opens: it does not wait for the workspace details, and a click made before the settings load is queued. Scope buttons are smaller, the manual-edit **应用** (Apply) button sits next to the name field (Enter also applies), and **更多** (More) and **设置** (Settings) moved to a footer.

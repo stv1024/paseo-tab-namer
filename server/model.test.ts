@@ -1,8 +1,12 @@
 import assert from "node:assert/strict";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { test } from "node:test";
-import { generate, listProviders, parseTitle } from "./model";
+import { discard, generate, listProviders, parseTitle } from "./model";
 import { SettingsSchema } from "../shared/settings";
 import type { PaseoApi } from "./types";
+// No CLI here, so generation tests use the archive fallback, not the daemon.
+process.env.PASEO_CLI = join(tmpdir(), "missing-paseo-cli.exe");
 test("title parsing accepts plain and JSON names, rejects bad output", () => {
   assert.equal(parseTitle("“修复登录跳转”", 30), "修复登录跳转");
   assert.equal(parseTitle('{"title":"修复登录"}', 30), "修复登录");
@@ -41,6 +45,7 @@ function fakePaseo(run: object, thinkingOptions: object[] = []) {
           create: async (options: any) => {
             calls.create.push(options);
             return {
+              id: "helper",
               run: async (text: string) => {
                 calls.prompts.push(text);
                 return run;
@@ -61,7 +66,7 @@ const settings = SettingsSchema.parse({
   model: "haiku",
   thinkingOptionId: "low",
 });
-test("generation runs a labelled Paseo agent and archives it", async () => {
+test("generation runs a labelled Paseo agent and cleans it up", async () => {
   const { paseo, calls } = fakePaseo({
     status: "idle",
     lastMessage: "合适的名称",
@@ -89,7 +94,7 @@ for (const [status, pattern] of [
   ["permission", /工具/],
   ["error", /运行失败：boom/],
 ] as const)
-  test(`generation reports ${status} and still archives the agent`, async () => {
+  test(`generation reports ${status} and still cleans up the agent`, async () => {
     const { paseo, calls } = fakePaseo({
       status,
       lastMessage: null,
@@ -128,6 +133,38 @@ test("generation requires a selected model", async () => {
     /尚未选择模型/,
   );
   assert.equal(calls.create.length, 0);
+});
+test("cleanup hard-deletes the agent through the Paseo CLI", async () => {
+  const runs: unknown[][] = [];
+  let archived = 0;
+  await discard(
+    {
+      id: "helper",
+      archive: async () => archived++,
+    },
+    (async (...args: unknown[]) => {
+      runs.push(args);
+      return { stdout: "", stderr: "" };
+    }) as any,
+  );
+  assert.deepEqual(runs[0].slice(0, 2), [
+    process.env.PASEO_CLI,
+    ["agent", "delete", "helper"],
+  ]);
+  assert.equal(archived, 0);
+});
+test("cleanup archives the agent when the CLI fails", async () => {
+  let archived = 0;
+  await discard(
+    {
+      id: "helper",
+      archive: async () => archived++,
+    },
+    (async () => {
+      throw new Error("AGENT_NOT_FOUND");
+    }) as any,
+  );
+  assert.equal(archived, 1);
 });
 test("provider list keeps enabled providers and selectable models", async () => {
   const paseo = {

@@ -23,7 +23,7 @@
 - 🎯 **You choose the context**: name from the most recent Tab, all Tabs, or one Tab you pick.
 - 📏 **Fits long Tabs into a budget**: a conservative input budget keeps the beginning and the most recent part of each Tab and makes no extra summarization calls.
 - 🔒 **Text only**: only user and assistant text is sent. Tool logs, reasoning and raw images stay out.
-- 🧹 **Cleans up after itself**: the helper session is archived as soon as it replies. The directory and Git branch are never touched.
+- 🧹 **Cleans up after itself**: the helper session is deleted as soon as it replies, so it does not stay in the agent history. The directory and Git branch are never touched.
 
 > [!NOTE]
 > The plugin UI and the default naming prompt are in **Simplified Chinese**. Edit the prompt in settings to generate names in another language.
@@ -75,7 +75,7 @@ Other entry points:
   <img src="docs/images/flow.png" alt="Read Tabs → fit the budget → ask your provider → apply and clean up" width="100%" />
 </p>
 
-Paseo exposes models to plugins only through agents. When you click Generate, the plugin starts a temporary session titled **Tab Namer** (tagged `tab-namer`) in the current workspace and sends the prompt and the selected Tab text as one message. It reads the reply and archives the session right away. Tagged sessions are never read back as Tabs. All authentication stays in Paseo's provider configuration.
+Paseo exposes models to plugins only through agents. When you click Generate, the plugin starts a temporary session titled **Tab Namer** (tagged `tab-namer`) in the current workspace and sends the prompt and the selected Tab text as one message. It reads the reply and deletes the session right away with `paseo agent delete`, because the plugin API can only archive agents and archived agents stay in the history. If the CLI is not available, the session is archived instead. Tagged sessions are never read back as Tabs. All authentication stays in Paseo's provider configuration.
 
 Generation runs as a background job that the UI polls, so you can close the popover. Each workspace runs one job at a time, with at most three jobs in parallel. Before writing, the plugin re-reads the current name and refuses to overwrite one that changed in the meantime.
 

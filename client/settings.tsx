@@ -157,7 +157,7 @@ function SettingsForm({
       />
       <Note theme={theme}>
         {providers
-          ? "列表来自此主机 Paseo 已启用的服务。命名时会在当前 workspace 临时启动一个 Tab Namer 会话，完成后自动归档。"
+          ? "列表来自此主机 Paseo 已启用的服务。命名时会在当前 workspace 临时启动一个 Tab Namer 会话，完成后自动删除。"
           : "正在读取 Paseo 服务列表…"}
       </Note>
       {!!listError && (
