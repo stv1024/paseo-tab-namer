@@ -4,7 +4,7 @@
 
 <p align="center">
   <a href="https://github.com/stv1024/paseo-tab-namer/releases"><img alt="Version" src="https://img.shields.io/badge/version-0.2.0-20744a?style=flat-square" /></a>
-  <img alt="Paseo" src="https://img.shields.io/badge/paseo-%E2%89%A5%200.11.2-7ccba0?style=flat-square" />
+  <img alt="Paseo" src="https://img.shields.io/badge/paseo-%E2%89%A5%200.16.0-7ccba0?style=flat-square" />
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-strict-3178c6?style=flat-square&logo=typescript&logoColor=white" />
   <img alt="Tests" src="https://img.shields.io/badge/tests-node%3Atest-555?style=flat-square" />
   <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-blue?style=flat-square" /></a>
@@ -41,7 +41,7 @@
 
 ## 安装
 
-需要 **Paseo 0.11.2 或更新版本**。
+需要 **Paseo 0.16.0 或更新版本**。
 
 ```sh
 paseo plugin install git:stv1024/paseo-tab-namer
@@ -72,7 +72,7 @@ paseo plugin install git:stv1024/paseo-tab-namer
   <img src="docs/images/flow.png" alt="读取 Tab → 适配预算 → 调用服务 → 应用并清理" width="100%" />
 </p>
 
-Paseo 目前只通过 agent 向插件提供模型能力。点击生成时，插件在当前 workspace 临时启动一个标题为 **Tab Namer**、带 `tab-namer` 标签的会话，把提示词和所选 Tab 文字作为一条消息发送，读取回复后立即用 `paseo agent delete` 删除。插件 API 只能归档 agent，而归档的 agent 会留在历史里；找不到 CLI 时才退回为归档。带该标签的会话不会被当作 Tab 读取。认证完全由 Paseo 的服务配置负责。
+Paseo 目前只通过 agent 向插件提供模型能力。点击生成时，插件在当前 workspace 临时启动一个标题为 **Tab Namer**、带 `tab-namer` 标签的后台会话。后台会话不打开 Tab，也不出现在 agent 列表和通知中。插件把提示词和所选 Tab 文字作为一条消息发送，读取回复后立即用 `paseo agent delete` 删除。插件 API 只能归档 agent，而归档的 agent 会留在历史里；找不到 CLI 时才退回为归档。带该标签的会话不会被当作 Tab 读取。认证完全由 Paseo 的服务配置负责。
 
 生成以后台任务运行，界面轮询状态，关闭弹窗也会完成。每个 workspace 同时只运行一项任务，全局最多并发三项。写入前会重读当前名称，若已被修改则拒绝覆盖。
 

@@ -1,7 +1,11 @@
 # Changelog
 
-## Unreleased
+## 0.3.0
 
+- Requires Paseo 0.16.0 or newer.
+- Stop the full workspace re-list every 30 seconds in each client. The plugin now subscribes to workspace updates when it first lists workspaces, so the header button appears on a new workspace and goes away from an archived one as soon as the change happens.
+- Run the helper **Tab Namer** session as a background agent. It no longer opens a Tab for a moment while a name is generated, and it does not show in the agent list or notifications.
+- Read only the agents of the workspace's project when collecting Tabs, instead of the whole agent history. For the most recent Tab, stop at the first match.
 - Delete the helper **Tab Namer** session after each generation instead of archiving it, so it no longer stays in the agent history. The plugin API can only archive agents, so the plugin calls `paseo agent delete` through the Paseo CLI. If the CLI is not available, the session is archived as before.
 
 ## 0.2.0

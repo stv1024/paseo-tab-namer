@@ -4,7 +4,7 @@
 
 <p align="center">
   <a href="https://github.com/stv1024/paseo-tab-namer/releases"><img alt="Version" src="https://img.shields.io/badge/version-0.2.0-20744a?style=flat-square" /></a>
-  <img alt="Paseo" src="https://img.shields.io/badge/paseo-%E2%89%A5%200.11.2-7ccba0?style=flat-square" />
+  <img alt="Paseo" src="https://img.shields.io/badge/paseo-%E2%89%A5%200.16.0-7ccba0?style=flat-square" />
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-strict-3178c6?style=flat-square&logo=typescript&logoColor=white" />
   <img alt="Tests" src="https://img.shields.io/badge/tests-node%3Atest-555?style=flat-square" />
   <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-blue?style=flat-square" /></a>
@@ -44,7 +44,7 @@
 
 ## Installation
 
-Requires **Paseo 0.11.2 or newer**.
+Requires **Paseo 0.16.0 or newer**.
 
 ```sh
 paseo plugin install git:stv1024/paseo-tab-namer
@@ -75,7 +75,7 @@ Other entry points:
   <img src="docs/images/flow.png" alt="Read Tabs → fit the budget → ask your provider → apply and clean up" width="100%" />
 </p>
 
-Paseo exposes models to plugins only through agents. When you click Generate, the plugin starts a temporary session titled **Tab Namer** (tagged `tab-namer`) in the current workspace and sends the prompt and the selected Tab text as one message. It reads the reply and deletes the session right away with `paseo agent delete`, because the plugin API can only archive agents and archived agents stay in the history. If the CLI is not available, the session is archived instead. Tagged sessions are never read back as Tabs. All authentication stays in Paseo's provider configuration.
+Paseo exposes models to plugins only through agents. When you click Generate, the plugin starts a temporary background session titled **Tab Namer** (tagged `tab-namer`) in the current workspace. A background session opens no Tab and does not show in the agent list or notifications. The plugin sends the prompt and the selected Tab text as one message. It reads the reply and deletes the session right away with `paseo agent delete`, because the plugin API can only archive agents and archived agents stay in the history. If the CLI is not available, the session is archived instead. Tagged sessions are never read back as Tabs. All authentication stays in Paseo's provider configuration.
 
 Generation runs as a background job that the UI polls, so you can close the popover. Each workspace runs one job at a time, with at most three jobs in parallel. Before writing, the plugin re-reads the current name and refuses to overwrite one that changed in the meantime.
 
