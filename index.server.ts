@@ -116,7 +116,7 @@ export default function contribute(server: PluginServerContext) {
         title: w.title ?? null,
         project: w.projectDisplayName,
       },
-      agents: (await agentsFor(paseo, workspaceId)).map((a) => ({
+      agents: (await agentsFor(paseo, w)).map((a) => ({
         id: a.id,
         title: a.title ?? a.id,
         updatedAt: a.updatedAt,

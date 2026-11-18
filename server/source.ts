@@ -26,23 +26,33 @@ export async function workspaceFor(paseo: PaseoApi, id: string) {
   if (!workspace) throw new Error("Workspace 不存在或已归档。请刷新后重试。");
   return workspace;
 }
-export async function agentsFor(paseo: PaseoApi, workspaceId: string) {
+// The agent list has no workspace filter. An agent's projectKey is the
+// projectId of its workspace, so the daemon returns only this project's agents
+// instead of the full history, and the workspace check below finishes the job.
+export async function agentsFor(
+  paseo: PaseoApi,
+  workspace: { id: string; projectId?: string | null },
+  max = Infinity,
+) {
   const agents: Agent[] = [];
   let cursor: string | undefined;
   do {
     const page = await paseo.agents.list({
-      filter: { includeArchived: true },
+      filter: {
+        includeArchived: true,
+        ...(workspace.projectId ? { projectKeys: [workspace.projectId] } : {}),
+      },
       sort: [{ key: "updated_at", direction: "desc" }],
       page: { limit: 100, ...(cursor ? { cursor } : {}) },
     });
     agents.push(
       ...page.entries
         .map((e) => e.agent)
-        .filter((a) => a.workspaceId === workspaceId && !isGenerator(a)),
+        .filter((a) => a.workspaceId === workspace.id && !isGenerator(a)),
     );
     cursor = page.pageInfo.nextCursor ?? undefined;
-  } while (cursor);
-  return agents;
+  } while (cursor && agents.length < max);
+  return agents.slice(0, max);
 }
 export async function readConversation(
   paseo: PaseoApi,
@@ -136,7 +146,11 @@ export async function prepare(
   previousTitle?: string,
 ) {
   const workspace = await workspaceFor(paseo, selection.workspaceId);
-  let agents = await agentsFor(paseo, selection.workspaceId);
+  let agents = await agentsFor(
+    paseo,
+    workspace,
+    selection.scope === "latest" ? 1 : Infinity,
+  );
   if (selection.scope === "selected")
     agents = agents.filter((a) => a.id === selection.agentId);
   if (selection.scope === "latest") agents = agents.slice(0, 1);

@@ -95,14 +95,15 @@ export async function generate(
       ?.thinkingOptions.find((t) => t.isDefault)?.id;
   let agent;
   try {
-    // Paseo exposes LLMs to plugins as agents; plugins cannot create internal
-    // agents, so this one lives briefly in the workspace and is deleted below.
+    // Paseo exposes LLMs to plugins as agents. A background agent opens no Tab
+    // and stays out of default lists and notifications; it is deleted below.
     agent = await paseo.workspaces.ref(workspaceId).agents.create({
       config: {
         provider: `${settings.provider}/${settings.model}`,
         ...(thinkingOptionId ? { thinkingOptionId } : {}),
       },
       title: "Tab Namer",
+      background: true,
       labels: { [GENERATOR_LABEL]: "generator" },
     });
   } catch (e) {

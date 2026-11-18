@@ -85,6 +85,7 @@ test("generation runs a labelled Paseo agent and cleans it up", async () => {
   assert.equal(calls.create[0].config.provider, "claude/haiku");
   assert.equal(calls.create[0].config.thinkingOptionId, "low");
   assert.equal(calls.create[0].labels["tab-namer"], "generator");
+  assert.equal(calls.create[0].background, true);
   assert.equal(calls.create[0].prompt, undefined);
   assert.deepEqual(calls.prompts, ["规则\n\n资料"]);
   assert.equal(calls.archived, 1);

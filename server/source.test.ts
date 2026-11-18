@@ -93,7 +93,29 @@ test("Tab Namer's own helper agents are never treated as Tabs", async () => {
     },
   } as unknown as PaseoApi;
   assert.deepEqual(
-    (await agentsFor(paseo, "w")).map((a) => a.id),
+    (await agentsFor(paseo, { id: "w" })).map((a) => a.id),
     ["a"],
   );
+});
+test("the agent list is narrowed to the workspace's project", async () => {
+  const filters: unknown[] = [];
+  const paseo = {
+    agents: {
+      list: async (options: { filter?: unknown }) => {
+        filters.push(options.filter);
+        return {
+          entries: [
+            { agent: { id: "a", workspaceId: "w" } },
+            { agent: { id: "b", workspaceId: "sibling" } },
+          ],
+          pageInfo: {},
+        };
+      },
+    },
+  } as unknown as PaseoApi;
+  assert.deepEqual(
+    (await agentsFor(paseo, { id: "w", projectId: "p" })).map((a) => a.id),
+    ["a"],
+  );
+  assert.deepEqual(filters, [{ includeArchived: true, projectKeys: ["p"] }]);
 });

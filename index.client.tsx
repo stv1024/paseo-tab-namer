@@ -81,58 +81,50 @@ export default function contribute(client: PluginClientContext) {
     onSelect: openSettings,
   });
   const buttons = new Map<string, ReturnType<typeof client.addHeaderButton>>();
-  let disposed = false,
-    fetching = false;
-  const refresh = async () => {
-    if (disposed || fetching) return;
-    fetching = true;
-    try {
-      const found = new Set<string>();
-      let cursor: string | undefined;
-      do {
-        const page = await client.paseo.workspaces.list({
-          page: { limit: 100, ...(cursor ? { cursor } : {}) },
-        });
-        if (disposed) return;
-        for (const w of page.entries) {
-          found.add(w.id);
-          if (!buttons.has(w.id))
-            buttons.set(
-              w.id,
-              client.addHeaderButton({
-                id: "tab-namer",
-                workspaceId: w.id,
-                button: {
-                  title: "Tab Namer",
-                  icon: "Sparkles",
-                  behavior: { kind: "popover", Content: Popover },
-                },
-              }),
-            );
-        }
-        cursor = page.pageInfo.nextCursor ?? undefined;
-      } while (cursor);
-      for (const [id, button] of buttons)
-        if (!found.has(id)) {
-          button.remove();
-          buttons.delete(id);
-        }
-    } catch {
-      /* Screen RPCs surface errors; polling retries registration. */
-    } finally {
-      fetching = false;
-    }
+  let disposed = false;
+  const addButton = (workspaceId: string) => {
+    if (disposed || buttons.has(workspaceId)) return;
+    buttons.set(
+      workspaceId,
+      client.addHeaderButton({
+        id: "tab-namer",
+        workspaceId,
+        button: {
+          title: "Tab Namer",
+          icon: "Sparkles",
+          behavior: { kind: "popover", Content: Popover },
+        },
+      }),
+    );
   };
-  const unsubscribe = client.paseo.workspaces.subscribe(() => {
-    void refresh();
+  const removeButton = (workspaceId: string) => {
+    buttons.get(workspaceId)?.remove();
+    buttons.delete(workspaceId);
+  };
+  // Live updates add and remove buttons, so the list is read only once.
+  const unsubscribe = client.paseo.workspaces.subscribe((update) => {
+    if (update.kind === "upsert") addButton(update.workspace.id);
+    else removeButton(update.id);
   });
-  const timer = setInterval(() => {
-    void refresh();
-  }, 30000);
-  void refresh();
+  void (async () => {
+    let cursor: string | undefined;
+    do {
+      // `subscribe` on the first page makes the daemon stream workspace
+      // updates to the handler above; without it the handler gets nothing.
+      const page = await client.paseo.workspaces.list({
+        page: { limit: 100, ...(cursor ? { cursor } : {}) },
+        ...(cursor === undefined ? { subscribe: {} } : {}),
+      });
+      page.entries.forEach((w) => addButton(w.id));
+      cursor = page.pageInfo.hasMore
+        ? (page.pageInfo.nextCursor ?? undefined)
+        : undefined;
+    } while (cursor && !disposed);
+  })().catch((error: unknown) =>
+    console.error("[tab-namer] cannot list workspaces", error),
+  );
   return () => {
     disposed = true;
-    clearInterval(timer);
     unsubscribe();
     for (const button of buttons.values()) button.remove();
     buttons.clear();
